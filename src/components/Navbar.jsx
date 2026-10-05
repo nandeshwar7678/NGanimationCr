@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import { Menu, X, Sparkles } from 'lucide-react'
-import logo from '../assets/logo.png'
+import logo from '../assets/LOGO.png'
 
 const links = [
   { to: '/', label: 'Home' },
