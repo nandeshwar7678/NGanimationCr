@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom'
 import { Instagram, Youtube, Facebook, AtSign, Sparkles } from 'lucide-react'
-import logo from '../assets/logo.png'
+import logo from '../assets/LOGO.png'
 
 export default function Footer() {
   return (
