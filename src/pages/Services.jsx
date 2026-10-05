@@ -4,7 +4,7 @@ import aianimationS from "../assets/aianimationS.png"
 import aivideocreationS from "../assets/aivideocreation.png"
 import brandedS from "../assets/brandad.png"
 import instagramS from "../assets/instareel.png"
-import youtubeconstentS from "../assets/Youtube.png"
+import youtubeconstentS from "../assets/YouTube.png"
 import storytellingS from "../assets/storytelling.png"
 
 const services = [
