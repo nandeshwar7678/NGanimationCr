@@ -21,7 +21,7 @@ export default function Navbar() {
     <header className="sticky top-0 z-50 bg-base/80 backdrop-blur-md border-b border-white/5">
       <div className="container-x flex items-center justify-between h-16">
         <NavLink to="/" className="flex items-center gap-2 font-display font-bold text-lg">
-  <img src={logo} alt="NGanimationCr Logo" className="h-8 w-8 object-contain" />
+  <img src={logo} alt="NGanimationCr logo" className="h-8 w-8 object-contain" />
   NGanimationCr
 </NavLink>
 

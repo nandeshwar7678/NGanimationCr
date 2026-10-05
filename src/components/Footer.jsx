@@ -8,7 +8,7 @@ export default function Footer() {
       <div className="container-x py-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
         <div>
           <NavLink to="/" className="flex items-center gap-2 font-display font-bold text-lg">
-            <img src={logo} alt="NGanimationCr Logo" className="h-8 w-8 object-contain" />
+            <img src={logo} alt="NGanimationCr logo" className="h-8 w-8 object-contain" />
             NGanimationCr
           </NavLink>
           <p className="text-white/50 text-sm leading-relaxed">
