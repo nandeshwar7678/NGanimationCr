@@ -21,9 +21,9 @@ export default function Navbar() {
     <header className="sticky top-0 z-50 bg-base/80 backdrop-blur-md border-b border-white/5">
       <div className="container-x flex items-center justify-between h-16">
         <NavLink to="/" className="flex items-center gap-2 font-display font-bold text-lg">
-  <img src={logo} alt="NGanimationCr logo" className="h-8 w-8 object-contain" />
-  NGanimationCr
-</NavLink>
+          <img src={logo} alt="NGanimationCr logo" className="h-8 w-8 object-contain" />
+          NGanimationCr
+        </NavLink>
 
         <nav className="hidden lg:flex items-center gap-7 text-sm text-white/70">
           {links.map((l) => (
@@ -31,7 +31,10 @@ export default function Navbar() {
               key={l.to}
               to={l.to}
               className={({ isActive }) =>
-                `hover:text-white transition-colors ${isActive ? 'text-white' : ''}`
+                `hover:text-white transition-colors ${isActive && !(l.to === '/contact' && window.location.search.includes('type=payment'))
+                  ? 'text-white'
+                  : ''
+                }`
               }
             >
               {l.label}
@@ -39,9 +42,12 @@ export default function Navbar() {
           ))}
         </nav>
 
-        <div className="hidden lg:block">
-          <NavLink to="/contact" className="btn-primary">Hire Me</NavLink>
-        </div>
+ <NavLink
+  to="/contact?type=payment"
+  className="btn-primary payment-desktop-only"
+>
+  Payment Form
+</NavLink>
 
         <button className="lg:hidden text-white" onClick={() => setOpen(!open)} aria-label="Toggle menu">
           {open ? <X size={24} /> : <Menu size={24} />}
@@ -56,14 +62,21 @@ export default function Navbar() {
               to={l.to}
               onClick={() => setOpen(false)}
               className={({ isActive }) =>
-                `py-2.5 text-sm border-b border-white/5 ${isActive ? 'text-white' : 'text-white/70'}`
+                `py-2.5 text-sm border-b border-white/5 ${isActive && !(l.to === '/contact' && window.location.search.includes('type=payment'))
+                  ? 'text-white'
+                  : 'text-white/70'
+                }`
               }
             >
               {l.label}
             </NavLink>
           ))}
-          <NavLink to="/contact" onClick={() => setOpen(false)} className="btn-primary justify-center mt-3">
-            Hire Me
+          <NavLink
+            to="/contact?type=payment"
+            onClick={() => setOpen(false)}
+            className="btn-primary justify-center mt-3"
+          >
+            Payment Form
           </NavLink>
         </div>
       )}

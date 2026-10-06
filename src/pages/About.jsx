@@ -13,10 +13,10 @@ const pillars = [
 ]
 
 const journey = [
-  { value: '5+', label: 'Years Experience' },
-  { value: '100+', label: 'Projects' },
-  { value: '50+', label: 'Happy Clients' },
-  { value: '1M+', label: 'Total Views' },
+  { value: '4+', label: 'Years Experience' },
+  { value: '250+', label: 'Projects' },
+  { value: '80+', label: 'Happy Clients' },
+  { value: '70M+', label: 'Total Views' },
 ]
 
 const YELLOW = '#FFD23F'

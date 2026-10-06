@@ -4,6 +4,10 @@
 
 * {
   scroll-behavior: smooth;
+} 
+#root {
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 body {
@@ -24,6 +28,14 @@ h1, h2, h3, h4 {
   background: #6D5DF6;
   border-radius: 10px;
 }
+ .scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
 
 .container-x {
   @apply max-w-7xl mx-auto px-5 sm:px-8;
@@ -43,4 +55,13 @@ h1, h2, h3, h4 {
 
 .section-pad {
   @apply py-16 sm:py-20;
+}
+.payment-desktop-only {
+  display: none !important;
+}
+
+@media (min-width: 1025px) {
+  .payment-desktop-only {
+    display: flex !important;
+  }
 }

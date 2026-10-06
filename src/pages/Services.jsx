@@ -77,7 +77,14 @@ export default function Services() {
             <h3 className="text-2xl font-bold mb-1">Have a project in mind?</h3>
             <p className="text-white/50">Let's discuss how I can help you.</p>
           </div>
-          <NavLink to="/contact" className="btn-primary shrink-0">Get a Quote</NavLink>
+          <a
+                href="/Quotation.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-outline"
+              >
+                Get a Quote
+              </a>
         </div>
       </div>
     </div>

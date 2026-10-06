@@ -1,5 +1,18 @@
 import { NavLink } from 'react-router-dom'
-import { Instagram, Youtube, Facebook, AtSign, Sparkles } from 'lucide-react'
+import {
+  Mail,
+  Phone,
+  MapPin,
+  Instagram,
+  Youtube,
+  Linkedin,
+  Twitter,
+  AtSign,
+  Facebook,
+  Github,
+  Upload,
+  CheckCircle
+} from 'lucide-react'
 import logo from '../assets/logo.png'
 
 export default function Footer() {
@@ -15,18 +28,85 @@ export default function Footer() {
             Creating stories with AI — engaging videos and creative content for brands and dreamers.
           </p>
           <div className="flex gap-3 mt-4 text-white/60">
-            <a href="https://instagram.com/NGanimationCr" target="_blank" rel="noopener noreferrer">
-              <Instagram size={18} className="hover:text-white cursor-pointer" />
+
+            {/* Instagram */}
+            <a
+              href="https://instagram.com/NGanimationCr"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Instagram"
+            >
+              <Instagram
+                size={18}
+                className="hover:text-white cursor-pointer transition"
+              />
             </a>
-            <a href="https://youtube.com/@NGanimation_Cr" target="_blank" rel="noopener noreferrer">
-              <Youtube size={18} className="hover:text-white cursor-pointer" />
+
+            {/* YouTube */}
+            <a
+              href="https://youtube.com/@NGanimation_Cr"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="YouTube"
+            >
+              <Youtube
+                size={18}
+                className="hover:text-white cursor-pointer transition"
+              />
             </a>
-            <a href="https://threads.net/@NGanimationCr" target="_blank" rel="noopener noreferrer">
-              <AtSign size={18} className="hover:text-white cursor-pointer" />
+
+            {/* Threads */}
+            <a
+              href="https://threads.net/@NGanimationCr"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Threads"
+            >
+              <AtSign
+                size={18}
+                className="hover:text-white cursor-pointer transition"
+              />
             </a>
-            <a href="https://facebook.com/NGanimationCr" target="_blank" rel="noopener noreferrer">
-              <Facebook size={18} className="hover:text-white cursor-pointer" />
+
+            {/* Facebook */}
+            <a
+              href="https://facebook.com/NGanimationCr"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Facebook"
+            >
+              <Facebook
+                size={18}
+                className="hover:text-white cursor-pointer transition"
+              />
             </a>
+
+            {/* LinkedIn */}
+            <a
+              href="https://www.linkedin.com/in/nandeshwar7678"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="LinkedIn"
+            >
+              <Linkedin
+                size={18}
+                className="hover:text-white cursor-pointer transition"
+              />
+            </a>
+
+            {/* GitHub */}
+            <a
+              href="https://github.com/nandeshwar7678"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="GitHub"
+            >
+              <Github
+                size={18}
+                className="hover:text-white cursor-pointer transition"
+              />
+            </a>
+
           </div>
         </div>
 
@@ -55,7 +135,8 @@ export default function Footer() {
           <ul className="space-y-2 text-sm text-white/50">
             <li>NGanimationCr@gmail.com</li>
             <li>+91 7498699607</li>
-            <li>Pune 411057, India</li>
+            <li>Hinjewadi Phase I, Shivaji Chowk, Pune, Maharashtra – 411057, India
+            </li>
           </ul>
         </div>
       </div>

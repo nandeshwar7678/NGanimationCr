@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import {
   Mail,
   Phone,
@@ -6,7 +7,9 @@ import {
   Instagram,
   Youtube,
   Linkedin,
-  Twitter,
+  AtSign,
+  Facebook,
+  Github,
   Upload,
   CheckCircle
 } from 'lucide-react'
@@ -20,14 +23,25 @@ const SCRIPT_URL =
 
 
 export default function Contact() {
+
   const submittingRef = useRef(false)
   const fileInputRef = useRef(null)
+
+  const [searchParams] = useSearchParams()
+
+  const isPaymentForm =
+    searchParams.get('type') === 'payment'
+
+  // ===============================
+  // FORM STATE
+  // ===============================
 
   const [form, setForm] = useState({
     name: '',
     email: '',
     phone: '',
     address: '',
+    message: '',
     paymentFile: null
   })
 
@@ -74,7 +88,6 @@ export default function Contact() {
       }
 
     })
-
   }
 
 
@@ -83,6 +96,7 @@ export default function Contact() {
   // ===============================
 
   const handleSubmit = async (e) => {
+
     e.preventDefault()
 
     // Prevent double submission
@@ -97,86 +111,194 @@ export default function Contact() {
     setSent(false)
 
     try {
-      // Validate required fields
+
+      // ===============================
+      // REQUIRED FIELDS
+      // ===============================
+
       if (
         !form.name.trim() ||
         !form.email.trim() ||
-        !form.phone.trim() ||
-        !form.address.trim()
+        !form.phone.trim()
       ) {
+
         setError('Please fill all required fields.')
         return
       }
 
-      // Validate payment screenshot
-      if (!form.paymentFile) {
-        setError('Please upload your payment screenshot.')
-        return
+
+      // ===============================
+      // PAYMENT FORM VALIDATION
+      // ===============================
+
+      if (isPaymentForm) {
+
+        // Address required
+        if (!form.address.trim()) {
+
+          setError('Please enter your address.')
+          return
+        }
+
+
+        // Screenshot required
+        if (!form.paymentFile) {
+
+          setError('Please upload your payment screenshot.')
+          return
+        }
+
+
+        // File size limit: 5 MB
+        if (
+          form.paymentFile.size >
+          5 * 1024 * 1024
+        ) {
+
+          setError(
+            'Payment screenshot must be less than 5 MB.'
+          )
+
+          return
+        }
+
       }
 
-      // File size limit: 5 MB
-      if (form.paymentFile.size > 5 * 1024 * 1024) {
-        setError('Payment screenshot must be less than 5 MB.')
-        return
-      }
 
-      // Convert payment screenshot to Base64
-      const fileData = await fileToBase64(form.paymentFile)
+      // ===============================
+      // FILE DATA
+      // ===============================
+
+      const fileData = isPaymentForm
+        ? await fileToBase64(form.paymentFile)
+        : ''
+
+
+      // ===============================
+      // PAYLOAD
+      // ===============================
 
       const payload = {
+
         submissionId:
-          typeof crypto !== 'undefined' && crypto.randomUUID
+          typeof crypto !== 'undefined' &&
+            crypto.randomUUID
             ? crypto.randomUUID()
-            : `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+            : `${Date.now()}-${Math.random()
+              .toString(36)
+              .slice(2)}`,
+
+        type: isPaymentForm
+          ? 'payment'
+          : 'contact',
 
         name: form.name,
         email: form.email,
         phone: form.phone,
-        address: form.address,
 
-        fileName: form.paymentFile.name,
-        fileType: form.paymentFile.type,
-        fileData: fileData
+        address: isPaymentForm
+          ? form.address
+          : '',
+
+        message: isPaymentForm
+          ? ''
+          : form.message,
+
+        fileName: isPaymentForm
+          ? form.paymentFile?.name || ''
+          : '',
+
+        fileType: isPaymentForm
+          ? form.paymentFile?.type || ''
+          : '',
+
+        fileData: isPaymentForm
+          ? fileData
+          : ''
+
       }
+
+
+      // ===============================
+      // FORM BODY
+      // ===============================
 
       const body = new URLSearchParams()
 
-      body.append('payload', JSON.stringify(payload))
+      body.append(
+        'payload',
+        JSON.stringify(payload)
+      )
 
-      // Send only ONE request
-      const response = await fetch(SCRIPT_URL, {
-  method: 'POST',
-  body: body
-})
 
-const result = await response.text()
+      // ===============================
+      // SEND TO GOOGLE APPS SCRIPT
+      // ===============================
 
-console.log("Apps Script Response:", result)
+      const response = await fetch(
+        SCRIPT_URL,
+        {
+          method: 'POST',
+          body: body
+        }
+      )
 
-      // Show success
+
+      const result = await response.text()
+
+      console.log(
+        'Apps Script Response:',
+        result
+      )
+
+
+      // ===============================
+      // SUCCESS
+      // ===============================
+
       setSent(true)
 
-      // Reset form
+
+      // ===============================
+      // RESET FORM
+      // ===============================
+
       setForm({
         name: '',
         email: '',
         phone: '',
         address: '',
+        message: '',
         paymentFile: null
       })
 
+
       // Clear file input
       if (fileInputRef.current) {
+
         fileInputRef.current.value = ''
+
       }
 
     } catch (error) {
-      console.error('Form submission error:', error)
-      setError('Something went wrong. Please try again.')
+
+      console.error(
+        'Form submission error:',
+        error
+      )
+
+      setError(
+        'Something went wrong. Please try again.'
+      )
+
     } finally {
+
       setLoading(false)
+
       submittingRef.current = false
+
     }
+
   }
 
 
@@ -194,122 +316,151 @@ console.log("Apps Script Response:", result)
         <div className="mb-12">
 
           <h1 className="text-4xl font-bold mb-2">
-            Contact
+            {isPaymentForm ? 'Payment Form' : 'Contact'}
           </h1>
 
           <p className="text-white/50">
-            Let's create together. Feel free to reach out for
-            collaborations, projects or any inquiries.
+            {isPaymentForm
+              ? 'Complete the payment form and submit your payment details to get started.'
+              : "Let's create together. Feel free to reach out for collaborations, projects or any inquiries."
+            }
           </p>
 
         </div>
 
 
-        <div className="grid lg:grid-cols-2 gap-10">
+        <div className={isPaymentForm ? "grid lg:grid-cols-1 gap-10" : "grid lg:grid-cols-2 gap-10"}>
 
+          {!isPaymentForm && (
+            <div className="card p-8">
 
-          {/* ========================= */}
-          {/* LEFT SIDE */}
-          {/* ========================= */}
+              <h3 className="font-semibold mb-6">
+                Get In Touch
+              </h3>
 
-          <div className="card p-8">
+              <div className="space-y-5 mb-8">
 
-            <h3 className="font-semibold mb-6">
-              Get In Touch
-            </h3>
+                <div className="flex items-center gap-3 text-white/70 text-sm">
+                  <Mail
+                    size={16}
+                    className="text-accent"
+                  />
+                  NGanimationCr@gmail.com
+                </div>
 
+                <div className="flex items-center gap-3 text-white/70 text-sm">
+                  <Phone
+                    size={16}
+                    className="text-accent"
+                  />
+                  +91 74986 99607
+                </div>
 
-            <div className="space-y-5 mb-8">
-
-
-              {/* EMAIL */}
-
-              <div className="flex items-center gap-3 text-white/70 text-sm">
-
-                <Mail
-                  size={16}
-                  className="text-accent"
-                />
-
-                NGanimationCr@gmail.com
-
-              </div>
-
-
-              {/* PHONE */}
-
-              <div className="flex items-center gap-3 text-white/70 text-sm">
-
-                <Phone
-                  size={16}
-                  className="text-accent"
-                />
-
-                +91 74986 99607
+                <div className="flex items-center gap-3 text-white/70 text-sm">
+                  <MapPin
+                    size={16}
+                    className="text-accent"
+                  />
+                  Hinjewadi Phase I, Shivaji Chowk, Pune, Maharashtra – 411057, India
+                </div>
 
               </div>
 
+              <h4 className="text-sm font-medium mb-3">
+                Follow Me
+              </h4>
 
-              {/* LOCATION */}
+              <div className="flex gap-3 mt-4 text-white/60">
 
-              <div className="flex items-center gap-3 text-white/70 text-sm">
+                <a
+                  href="https://instagram.com/NGanimationCr"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Instagram"
+                >
+                  <Instagram
+                    size={18}
+                    className="hover:text-white cursor-pointer transition"
+                  />
+                </a>
 
-                <MapPin
-                  size={16}
-                  className="text-accent"
-                />
+                <a
+                  href="https://youtube.com/@NGanimation_Cr"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="YouTube"
+                >
+                  <Youtube
+                    size={18}
+                    className="hover:text-white cursor-pointer transition"
+                  />
+                </a>
 
-                India
+                <a
+                  href="https://threads.net/@NGanimationCr"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Threads"
+                >
+                  <AtSign
+                    size={18}
+                    className="hover:text-white cursor-pointer transition"
+                  />
+                </a>
+
+                <a
+                  href="https://facebook.com/NGanimationCr"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Facebook"
+                >
+                  <Facebook
+                    size={18}
+                    className="hover:text-white cursor-pointer transition"
+                  />
+                </a>
+
+                <a
+                  href="https://www.linkedin.com/in/nandeshwar7678"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="LinkedIn"
+                >
+                  <Linkedin
+                    size={18}
+                    className="hover:text-white cursor-pointer transition"
+                  />
+                </a>
+
+                <a
+                  href="https://github.com/nandeshwar7678"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="GitHub"
+                >
+                  <Github
+                    size={18}
+                    className="hover:text-white cursor-pointer transition"
+                  />
+                </a>
 
               </div>
-
 
             </div>
+          )}
 
-
-            {/* SOCIAL */}
-
-            <h4 className="text-sm font-medium mb-3">
-              Follow Me
-            </h4>
-
-
-            <div className="flex gap-3 text-white/60">
-
-              <Instagram
-                size={18}
-                className="hover:text-white cursor-pointer"
-              />
-
-              <Youtube
-                size={18}
-                className="hover:text-white cursor-pointer"
-              />
-
-              <Linkedin
-                size={18}
-                className="hover:text-white cursor-pointer"
-              />
-
-              <Twitter
-                size={18}
-                className="hover:text-white cursor-pointer"
-              />
-
-            </div>
-
-          </div>
-
-
-          {/* ========================= */}
           {/* FORM */}
-          {/* ========================= */}
-
           <div className="card p-8">
 
 
+            {/* FORM TITLE */}
+
             <h3 className="font-semibold mb-6">
-              Send Your Details
+
+              {isPaymentForm
+                ? 'Payment Form'
+                : 'Contact Us'}
+
             </h3>
 
 
@@ -329,13 +480,22 @@ console.log("Apps Script Response:", result)
 
 
                 <h3 className="text-xl font-semibold mb-2">
+
                   Details Submitted Successfully
+
                 </h3>
 
 
                 <p className="text-white/50">
-                  Thank you! Your details and payment
-                  screenshot have been submitted.
+
+                  {isPaymentForm
+
+                    ? 'Thank you! Your payment details and screenshot have been submitted.'
+
+                    : 'Thank you! Your message has been submitted successfully.'
+
+                  }
+
                 </p>
 
 
@@ -343,7 +503,9 @@ console.log("Apps Script Response:", result)
                   onClick={() => setSent(false)}
                   className="mt-6 text-sm text-accent hover:underline"
                 >
+
                   Submit another response
+
                 </button>
 
 
@@ -431,93 +593,127 @@ console.log("Apps Script Response:", result)
 
 
                 {/* ========================= */}
-                {/* ADDRESS */}
+                {/* PAYMENT ADDRESS */}
                 {/* ========================= */}
 
-                <div>
+                {isPaymentForm ? (
 
-                  <label className="text-sm text-white/50 mb-1 block">
-                    Address
-                  </label>
+                  <div>
+
+                    <label className="text-sm text-white/50 mb-1 block">
+                      Address
+                    </label>
 
 
-                  <textarea
-                    name="address"
-                    value={form.address}
-                    onChange={handleChange}
-                    placeholder="Enter your full address"
-                    required
-                    rows={3}
-                    className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-accent resize-none"
-                  />
+                    <textarea
+                      name="address"
+                      value={form.address}
+                      onChange={handleChange}
+                      placeholder="Enter your full address"
+                      required
+                      rows={3}
+                      className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-accent resize-none"
+                    />
 
-                </div>
+                  </div>
+
+                ) : (
+
+                  /* ========================= */
+                  /* NORMAL CONTACT QUERY */
+                  /* ========================= */
+
+                  <div>
+
+                    <label className="text-sm text-white/50 mb-1 block">
+                      Your Query
+                    </label>
+
+
+                    <textarea
+                      name="message"
+                      value={form.message}
+                      onChange={handleChange}
+                      placeholder="How can I help you?"
+                      required
+                      rows={5}
+                      className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-accent resize-none"
+                    />
+
+                  </div>
+
+                )}
 
 
                 {/* ========================= */}
                 {/* PAYMENT SCREENSHOT */}
+                {/* ONLY PAYMENT FORM */}
                 {/* ========================= */}
 
-                <div>
+                {isPaymentForm && (
 
-                  <label className="text-sm text-white/50 mb-2 block">
-                    Payment Screenshot
-                  </label>
+                  <div>
 
-
-                  <label
-                    htmlFor="paymentFile"
-                    className="border border-dashed border-white/15 rounded-lg p-5 bg-white/[0.03] hover:border-accent cursor-pointer transition block"
-                  >
-
-                    <div className="flex items-center gap-3">
-
-                      <Upload
-                        size={22}
-                        className="text-accent"
-                      />
-
-                      <div>
-
-                        <p className="text-sm font-medium">
-                          Upload Payment Screenshot
-                        </p>
-
-                        <p className="text-xs text-white/40 mt-1">
-                          JPG, PNG or WEBP • Maximum 5 MB
-                        </p>
-
-                      </div>
-
-                    </div>
+                    <label className="text-sm text-white/50 mb-2 block">
+                      Payment Screenshot
+                    </label>
 
 
-                    {/* Selected file */}
+                    <label
+                      htmlFor="paymentFile"
+                      className="border border-dashed border-white/15 rounded-lg p-5 bg-white/[0.03] hover:border-accent cursor-pointer transition block"
+                    >
 
-                    {form.paymentFile && (
+                      <div className="flex items-center gap-3">
 
-                      <div className="mt-4 text-xs text-green-400">
+                        <Upload
+                          size={22}
+                          className="text-accent"
+                        />
 
-                        ✓ {form.paymentFile.name}
+                        <div>
+
+                          <p className="text-sm font-medium">
+                            Upload Payment Screenshot
+                          </p>
+
+                          <p className="text-xs text-white/40 mt-1">
+                            JPG, PNG or WEBP • Maximum 5 MB
+                          </p>
+
+                        </div>
 
                       </div>
 
-                    )}
 
-                  </label>
+                      {/* SELECTED FILE */}
+
+                      {form.paymentFile && (
+
+                        <div className="mt-4 text-xs text-green-400">
+
+                          ✓ {form.paymentFile.name}
+
+                        </div>
+
+                      )}
+
+                    </label>
 
 
-                  <input
-                    ref={fileInputRef}
-                    id="paymentFile"
-                    type="file"
-                    name="paymentFile"
-                    accept="image/png,image/jpeg,image/webp"
-                    onChange={handleChange}
-                    className="hidden"
-                  />
+                    <input
+                      ref={fileInputRef}
+                      id="paymentFile"
+                      type="file"
+                      name="paymentFile"
+                      accept="image/png,image/jpeg,image/webp"
+                      onChange={handleChange}
+                      className="hidden"
+                    />
 
-                </div>
+                  </div>
+
+                )}
 
 
                 {/* ========================= */}
@@ -546,8 +742,15 @@ console.log("Apps Script Response:", result)
                 >
 
                   {loading
+
                     ? 'Submitting...'
-                    : 'Submit Details'
+
+                    : isPaymentForm
+
+                      ? 'Submit Payment Details'
+
+                      : 'Send Message'
+
                   }
 
                 </button>
