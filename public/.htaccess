@@ -1,13 +1,15 @@
 <IfModule mod_rewrite.c>
   RewriteEngine On
 
-  RewriteBase /
+  # www -> non-www
+  RewriteCond %{HTTP_HOST} ^www\.aicloudetools\.com$ [NC]
+  RewriteRule ^(.*)$ https://aicloudetools.com/$1 [R=301,L]
 
-  # Existing files and folders ko directly serve karo
+  # Existing files/folders
   RewriteCond %{REQUEST_FILENAME} -f [OR]
   RewriteCond %{REQUEST_FILENAME} -d
   RewriteRule ^ - [L]
 
-  # Baaki React routes ko index.html par bhejo
+  # React routes
   RewriteRule ^ index.html [L]
 </IfModule>
