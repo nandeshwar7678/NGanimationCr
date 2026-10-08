@@ -1,5 +1,7 @@
 import { useState, useRef } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import paymentCharacter from '../assets/paymentChar.png'
+import letsConnectCharacters from '../assets/letsConnect.png'
 import {
   Mail,
   Phone,
@@ -316,7 +318,7 @@ export default function Contact() {
         <div className="mb-12">
 
           <h1 className="text-4xl font-bold mb-2">
-            {isPaymentForm ? 'Payment Form' : 'Contact'}
+            {isPaymentForm ? 'Payment Form' : 'Let’s connect!'}
           </h1>
 
           <p className="text-white/50">
@@ -329,10 +331,39 @@ export default function Contact() {
         </div>
 
 
-        <div className={isPaymentForm ? "grid lg:grid-cols-1 gap-10" : "grid lg:grid-cols-2 gap-10"}>
+        <div
+  className={
+    isPaymentForm
+      ? "grid lg:grid-cols-[0.75fr_1.25fr] gap-8 lg:gap-12 items-center"
+      : "relative overflow-hidden grid lg:grid-cols-2 gap-10 min-h-[1000px] lg:min-h-0"
+  }
+>
+          {/* CONTACT BACKGROUND CHARACTER */}
+          {!isPaymentForm && (
+  <>
+    <img
+      src={letsConnectCharacters}
+      alt=""
+      aria-hidden="true"
+      className="
+        absolute
+        inset-0
+        w-full
+        h-full
+        object-cover
+        object-center
+        opacity-70
+        z-0
+        pointer-events-none
+      "
+    />
+
+    <div className="absolute inset-0 bg-[#0B0F1F]/30 z-0 pointer-events-none" />
+  </>
+)}
 
           {!isPaymentForm && (
-            <div className="card p-8">
+            <div className="card p-8 relative z-10 !bg-transparent backdrop-blur-sm">
 
               <h3 className="font-semibold mb-6">
                 Get In Touch
@@ -448,9 +479,19 @@ export default function Contact() {
 
             </div>
           )}
+          {isPaymentForm && (
+            <div className="hidden lg:flex relative min-h-[620px] items-end justify-center">
+              <div className="absolute inset-0 bg-accent/10 blur-[100px] rounded-full" />
 
+              <img
+                src={paymentCharacter}
+                alt="NGanimationCr payment assistant"
+                className="relative z-10 w-full max-w-[520px] max-h-[700px] object-contain drop-shadow-[0_20px_40px_rgba(99,102,241,0.25)]"
+              />
+            </div>
+          )}
           {/* FORM */}
-          <div className="card p-8">
+          <div className="card p-8 relative z-10 !bg-base-card/55 backdrop-blur-sm">
 
 
             {/* FORM TITLE */}

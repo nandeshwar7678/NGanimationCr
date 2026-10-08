@@ -1,135 +1,265 @@
 import { useState, useRef } from 'react'
-import { Play } from 'lucide-react'
-import ad1 from "../assets/videos/ad1.mp4"
-import ad2 from "../assets/videos/ad2.mp4"
-import videoa from "../assets/videos/videoa.mp4"
-import videob from "../assets/videos/videob.mp4"
-import videoc from "../assets/videos/videoc.mp4"
-import Storytelling from "../assets/videos/storytelling.mp4"
-import YouTubeShorts from "../assets/videos/YouTubeShorts.mp4"
-import NatureReel from "../assets/videos/NatureReel.mp4"
-import GamingAnimation from "../assets/videos/GamingAnimation.mp4"
+
+import ad1 from '../assets/videos/ad1.mp4'
+import ad2 from '../assets/videos/ad2.mp4'
+import YouTubeShorts from '../assets/videos/YouTubeShorts.mp4'
+import NatureReel from '../assets/videos/NatureReel.mp4'
 
 
+// =====================================
+// ONLY 3 CATEGORIES
+// =====================================
 
-const categories = ['All', 'AI Animation', 'Advertisement', 'Storytelling', 'Reels']
+const categories = [
+  'All',
+  'Advertisement',
+  'Reels',
+]
+
+
+// =====================================
+// PROJECTS
+// =====================================
 
 const projects = [
   {
-    title: 'AI Love Story',
-    video: videoa,
-    tag: 'AI Animation',
-    meta: '2.6M views · 5 days ago'
-  },
-  {
-    title: 'Travel Adventure',
-    video: Storytelling,
-    tag: 'Storytelling',
-    meta: '1.8M views · 1 week ago'
-  },
-  {
+    id: 'brand-ad',
     title: 'Brand Ad',
     video: ad1,
     tag: 'Advertisement',
-    meta: '990K views · 1 week ago'
+    meta: '990K views · 1 week ago',
   },
+
   {
-    title: 'YouTube Shorts',
-    video: YouTubeShorts,
-    tag: 'Reels',
-    meta: 'Shorts'
-  },
-  {
-    title: 'Character Animation',
-    video: videob,
-    tag: 'AI Animation',
-    meta: 'Animation'
-  },
-  {
+    id: 'product-ad',
     title: 'Product Ad',
     video: ad2,
     tag: 'Advertisement',
-    meta: 'Advertisement'
+    meta: 'Advertisement',
   },
+
   {
-    title: 'Emotional Story',
-    video: videoc,
-    tag: 'Storytelling',
-    meta: 'Storytelling'
+    id: 'youtube-shorts',
+    title: 'YouTube Shorts',
+    video: YouTubeShorts,
+    tag: 'Reels',
+    meta: 'Shorts',
   },
+
   {
+    id: 'nature-reel',
     title: 'Nature Reel',
     video: NatureReel,
     tag: 'Reels',
-    meta: 'Reels'
-  },
-  {
-    title: 'Gaming Animation',
-    video: GamingAnimation,
-    tag: 'AI Animation',
-    meta: 'Animation'
+    meta: 'Reels',
   },
 ]
 
+
 export default function Portfolio() {
+
   const [active, setActive] = useState('All')
-  const videoRefs = useRef([])
-  const filtered = active === 'All' ? projects : projects.filter((p) => p.tag === active)
+
+  // Stable refs based on video ID
+  const videoRefs = useRef({})
+
+
+  const filtered =
+    active === 'All'
+      ? projects
+      : projects.filter(
+          (project) => project.tag === active
+        )
+
+
+  // =====================================
+  // PLAY ONE VIDEO AT A TIME
+  // =====================================
+
+  const handlePlay = (currentId) => {
+
+    Object.entries(videoRefs.current).forEach(
+      ([id, video]) => {
+
+        if (
+          video &&
+          id !== currentId
+        ) {
+          video.pause()
+          video.currentTime = 0
+        }
+
+      }
+    )
+
+  }
+
 
   return (
+
     <div className="section-pad">
+
       <div className="container-x">
+
+
+        {/* ================================= */}
+        {/* HEADER */}
+        {/* ================================= */}
+
         <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">My Portfolio</h1>
-          <p className="text-white/50">A collection of my best work across different styles and platforms.</p>
+
+          <h1 className="text-4xl font-bold mb-2">
+            My Portfolio
+          </h1>
+
+          <p className="text-white/50">
+            A collection of my best work across
+            advertisements and reels.
+          </p>
+
         </div>
 
-        <div className="flex flex-wrap gap-2 mb-10">
-          {categories.map((c) => (
+
+        {/* ================================= */}
+        {/* FILTER BUTTONS */}
+        {/* ================================= */}
+
+        <div className="flex flex-wrap gap-2 mb-8">
+
+          {categories.map((category) => (
+
             <button
-              key={c}
-              onClick={() => setActive(c)}
-              className={`px-4 py-2 rounded-full text-sm transition-colors ${active === c ? 'bg-accent text-white' : 'bg-white/5 text-white/60 hover:bg-white/10'
-                }`}
+              key={category}
+              onClick={() => setActive(category)}
+              className={`
+                px-4
+                py-2
+                rounded-full
+                text-sm
+                transition-all
+                duration-300
+
+                ${
+                  active === category
+                    ? `
+                      bg-accent
+                      text-white
+                      shadow-[0_5px_20px_rgba(109,93,246,0.25)]
+                    `
+                    : `
+                      bg-white/5
+                      text-white/60
+                      hover:bg-white/10
+                      hover:text-white
+                    `
+                }
+              `}
             >
-              {c}
+              {category}
             </button>
+
           ))}
+
         </div>
+
+
+        {/* ================================= */}
+        {/* VIDEO GRID */}
+        {/* ================================= */}
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {filtered.map((p, i) => (
-            <div key={p.title} className="card overflow-hidden group cursor-pointer">
-              <div className="aspect-video relative">
+
+          {filtered.map((project) => (
+
+            <div
+              key={project.id}
+              className="
+                card
+                overflow-hidden
+                group
+                transition-all
+                duration-300
+                hover:-translate-y-1
+                hover:border-accent/30
+                hover:shadow-[0_12px_35px_rgba(109,93,246,0.15)]
+              "
+            >
+
+              {/* VIDEO */}
+
+              <div className="aspect-video bg-black relative">
+
                 <video
-                  ref={(el) => (videoRefs.current[i] = el)}
-                  src={p.video}
-                  className="w-full h-full object-cover"
+                  key={project.id}
+                  ref={(element) => {
+
+                    if (element) {
+                      videoRefs.current[project.id] = element
+                    } else {
+                      delete videoRefs.current[project.id]
+                    }
+
+                  }}
+                  src={project.video}
+                  className="
+                    w-full
+                    h-full
+                    object-cover
+                  "
                   controls
-                  // muted
-                  // loop
                   playsInline
+                  preload="metadata"
+
                   onPlay={() => {
-                    videoRefs.current.forEach((video, index) => {
-                      if (video && index !== i) {
-                        video.pause()
-                         video.currentTime = 0
-                      }
-                    })
+                    handlePlay(project.id)
                   }}
                 />
-                {/* <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <Play className="text-white" size={30} />
-                </div> */}
+
               </div>
+
+
+              {/* ================================= */}
+              {/* VIDEO INFO */}
+              {/* ================================= */}
+
               <div className="p-4">
-                <p className="font-medium text-sm">{p.title}</p>
-                <p className="text-white/40 text-xs">{p.meta}</p>
+
+                <p className="font-medium text-sm">
+                  {project.title}
+                </p>
+
+                <p className="text-white/40 text-xs mt-1">
+                  {project.meta}
+                </p>
+
               </div>
+
             </div>
+
           ))}
+
         </div>
+
+
+        {/* ================================= */}
+        {/* EMPTY */}
+        {/* ================================= */}
+
+        {filtered.length === 0 && (
+
+          <div className="text-center py-12">
+
+            <p className="text-white/40">
+              No projects available.
+            </p>
+
+          </div>
+
+        )}
+
       </div>
+
     </div>
+
   )
 }

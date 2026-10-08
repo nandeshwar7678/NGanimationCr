@@ -10,10 +10,12 @@ import Blog from './pages/Blog.jsx'
 import BlogDetail from './pages/BlogDetail.jsx'
 import Pricing from './pages/Pricing.jsx'
 import Contact from './pages/Contact.jsx'
+import MagicalParticles from './components/MagicalParticles.jsx'
 
 export default function App() {
   return (
     <div className="min-h-screen flex flex-col">
+       <MagicalParticles />
       <Navbar />
       <main className="flex-1">
         <Routes>

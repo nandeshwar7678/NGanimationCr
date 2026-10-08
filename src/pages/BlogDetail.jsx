@@ -1,23 +1,113 @@
+import { useEffect } from 'react'
 import { useParams, NavLink } from 'react-router-dom'
 import { posts } from './Blog.jsx'
-import { ArrowLeft, ArrowRight, Clock } from 'lucide-react'
+import {
+  ArrowLeft,
+  ArrowRight,
+  Clock,
+  CheckCircle2,
+  Sparkles,
+  BookOpen,
+} from 'lucide-react'
 
 export default function BlogDetail() {
   const { slug } = useParams()
 
   const post = posts.find((p) => p.slug === slug)
 
+  useEffect(() => {
+    if (!post) return
+
+    document.title = `${post.title} | NGanimationCr`
+
+    const description = post.excerpt
+
+    let meta = document.querySelector(
+      'meta[name="description"]'
+    )
+
+    if (!meta) {
+      meta = document.createElement('meta')
+      meta.name = 'description'
+      document.head.appendChild(meta)
+    }
+
+    meta.setAttribute('content', description)
+
+    const canonical =
+      document.querySelector('link[rel="canonical"]')
+
+    if (canonical) {
+      canonical.href =
+        `${window.location.origin}/blog/${post.slug}`
+    }
+
+    // Article structured data
+    const oldSchema = document.getElementById(
+      'blog-article-schema'
+    )
+
+    if (oldSchema) {
+      oldSchema.remove()
+    }
+
+    const script = document.createElement('script')
+
+    script.id = 'blog-article-schema'
+    script.type = 'application/ld+json'
+
+    script.textContent = JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'Article',
+      headline: post.title,
+      description: post.excerpt,
+      datePublished: post.date,
+      author: {
+        '@type': 'Organization',
+        name: 'NGanimationCr',
+      },
+      publisher: {
+        '@type': 'Organization',
+        name: 'NGanimationCr',
+      },
+      mainEntityOfPage: {
+        '@type': 'WebPage',
+        '@id':
+          `${window.location.origin}/blog/${post.slug}`,
+      },
+    })
+
+    document.head.appendChild(script)
+
+    return () => {
+      const schema = document.getElementById(
+        'blog-article-schema'
+      )
+
+      if (schema) {
+        schema.remove()
+      }
+    }
+  }, [post])
+
   if (!post) {
     return (
       <div className="section-pad">
-        <div className="container-x max-w-3xl text-center py-20">
+        <div className="container-x max-w-3xl text-center py-16">
+
+          <div className="w-14 h-14 mx-auto mb-5 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
+            <BookOpen
+              size={25}
+              className="text-accent"
+            />
+          </div>
 
           <h1 className="text-3xl font-bold mb-3">
             Article Not Found
           </h1>
 
-          <p className="text-white/50 mb-6">
-            The article you are looking for does not exist.
+          <p className="text-white/45 mb-6">
+            The learning article you are looking for does not exist.
           </p>
 
           <NavLink
@@ -25,7 +115,7 @@ export default function BlogDetail() {
             className="btn-primary inline-flex items-center gap-2"
           >
             <ArrowLeft size={16} />
-            Back to Blog
+            Back to Learning Hub
           </NavLink>
 
         </div>
@@ -45,93 +135,203 @@ export default function BlogDetail() {
     <div className="section-pad">
       <article className="container-x max-w-4xl">
 
-        {/* Back */}
+        {/* BACK */}
         <NavLink
           to="/blog"
-          className="inline-flex items-center gap-2 text-white/45 text-sm mb-8 hover:text-white transition-colors"
+          className="inline-flex items-center gap-2 text-white/40 text-sm mb-7 hover:text-white transition-colors"
         >
           <ArrowLeft size={15} />
-          Back to Blog
+          Back to Learning Hub
         </NavLink>
 
-        {/* Header */}
-        <div className="max-w-3xl mb-10">
+        {/* HERO */}
+        <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-accent/15 via-white/[0.03] to-transparent p-7 sm:p-10 mb-8">
 
-          <p className="text-accent-soft text-sm font-medium mb-4">
-            {post.tag}
-          </p>
+          <div className="absolute -right-24 -top-24 w-72 h-72 rounded-full bg-accent/10 blur-3xl" />
 
-          <h1 className="text-3xl sm:text-5xl font-bold leading-tight mb-5">
-            {post.title}
-          </h1>
+          <div className="relative">
 
-          <div className="flex flex-wrap items-center gap-4 text-white/40 text-sm">
+            <div className="flex flex-wrap items-center gap-2 mb-5">
 
-            <span>
-              {post.date}
-            </span>
+              <span className="inline-flex items-center gap-1.5 text-xs text-accent-soft bg-accent/10 border border-accent/20 px-3 py-1.5 rounded-full">
+                <Sparkles size={12} />
+                {post.tag}
+              </span>
 
-            <span className="w-1 h-1 rounded-full bg-white/20" />
+              <span className="text-xs text-white/35">
+                {post.level}
+              </span>
 
-            <span className="inline-flex items-center gap-1">
-              <Clock size={14} />
-              {post.read}
-            </span>
+            </div>
+
+            <h1 className="text-3xl sm:text-5xl font-bold leading-tight mb-5">
+              {post.title}
+            </h1>
+
+            <p className="text-white/50 leading-relaxed max-w-3xl mb-5">
+              {post.excerpt}
+            </p>
+
+            <div className="flex flex-wrap items-center gap-4 text-white/35 text-sm">
+
+              <span>
+                {post.date}
+              </span>
+
+              <span className="w-1 h-1 rounded-full bg-white/20" />
+
+              <span className="inline-flex items-center gap-1">
+                <Clock size={14} />
+                {post.read}
+              </span>
+
+            </div>
 
           </div>
 
         </div>
 
-        {/* Hero Image */}
-        <div className="aspect-video rounded-2xl overflow-hidden border border-white/10 mb-12 bg-white/5">
+        {/* LEARNING OBJECTIVE */}
+        <div className="card p-5 sm:p-6 mb-9 border-accent/20 bg-accent/[0.04]">
 
-          <img
-            src={post.image}
-            alt={post.title}
-            className="w-full h-full object-cover"
-          />
+          <div className="flex items-start gap-3">
+
+            <div className="w-9 h-9 shrink-0 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center">
+              <BookOpen
+                size={17}
+                className="text-accent"
+              />
+            </div>
+
+            <div>
+
+              <h2 className="font-semibold mb-1">
+                Is lesson ke baad aap kya seekhenge?
+              </h2>
+
+              <p className="text-white/45 text-sm leading-relaxed">
+                Is guide ko step-by-step follow karke aap
+                practical AI content creation workflow ko
+                samajh sakte hain aur apne projects par apply
+                kar sakte hain.
+              </p>
+
+            </div>
+
+          </div>
 
         </div>
 
-        {/* Article */}
+        {/* ARTICLE */}
         <div className="max-w-3xl">
 
           {post.body.map((section, index) => (
+
             <section
               key={index}
-              className="mb-10"
+              className="mb-9"
             >
 
-              <h2 className="text-2xl font-semibold mb-4">
-                {section.heading}
-              </h2>
+              <div className="flex items-start gap-4">
 
-              <p className="text-white/65 leading-8 text-base sm:text-lg">
-                {section.text}
-              </p>
+                <div className="hidden sm:flex shrink-0 w-8 h-8 rounded-lg bg-white/5 border border-white/10 items-center justify-center text-xs text-accent">
+                  {String(index + 1).padStart(2, '0')}
+                </div>
+
+                <div className="flex-1">
+
+                  <h2 className="text-xl sm:text-2xl font-semibold mb-3">
+                    {section.heading}
+                  </h2>
+
+                  <p className="text-white/60 leading-8 text-base sm:text-lg">
+                    {section.text}
+                  </p>
+
+                </div>
+
+              </div>
 
             </section>
+
           ))}
 
         </div>
 
-        {/* Divider */}
+        {/* WORKFLOW BOX */}
+        <div className="card p-6 sm:p-7 mt-10 border-accent/20 bg-gradient-to-br from-accent/10 to-transparent">
+
+          <div className="flex items-center gap-2 mb-4">
+
+            <CheckCircle2
+              size={19}
+              className="text-accent"
+            />
+
+            <h2 className="font-semibold">
+              Quick Workflow
+            </h2>
+
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2 text-sm">
+
+            {[
+              'Idea',
+              'Script',
+              'Prompt',
+              'Image',
+              'Video',
+              'Voice',
+              'Editing',
+              'Upload',
+              'Analytics',
+            ].map((step, index) => (
+
+              <div
+                key={step}
+                className="flex items-center gap-2"
+              >
+
+                <span className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-white/65">
+                  {step}
+                </span>
+
+                {index < 8 && (
+                  <ArrowRight
+                    size={13}
+                    className="text-white/20"
+                  />
+                )}
+
+              </div>
+
+            ))}
+
+          </div>
+
+        </div>
+
+        {/* DIVIDER */}
         <div className="border-t border-white/10 my-12" />
 
-        {/* Related Posts */}
+        {/* RELATED */}
         {related.length > 0 && (
+
           <section>
 
             <div className="flex items-end justify-between mb-5">
 
               <div>
-                <p className="text-accent-soft text-xs mb-1">
-                  KEEP READING
+
+                <p className="text-accent-soft text-xs font-medium mb-1">
+                  CONTINUE LEARNING
                 </p>
 
                 <h2 className="text-2xl font-bold">
-                  Related Articles
+                  Related Lessons
                 </h2>
+
               </div>
 
               <NavLink
@@ -146,61 +346,63 @@ export default function BlogDetail() {
             <div className="grid sm:grid-cols-2 gap-5">
 
               {related.map((relatedPost) => (
+
                 <NavLink
                   key={relatedPost.slug}
                   to={`/blog/${relatedPost.slug}`}
-                  className="card overflow-hidden group hover:border-accent/40 transition-all"
+                  className="card p-5 group border border-white/5 hover:border-accent/40 hover:-translate-y-1 transition-all duration-300"
                 >
 
-                  <div className="aspect-video overflow-hidden">
-                    <img
-                      src={relatedPost.image}
-                      alt={relatedPost.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                  </div>
+                  <span className="text-accent-soft text-xs">
+                    {relatedPost.tag}
+                  </span>
 
-                  <div className="p-5">
+                  <h3 className="font-semibold text-lg leading-snug mt-2 mb-4 group-hover:text-accent-soft transition-colors">
+                    {relatedPost.title}
+                  </h3>
 
-                    <p className="text-accent-soft text-xs mb-2">
-                      {relatedPost.tag}
-                    </p>
-
-                    <h3 className="font-semibold leading-snug mb-3">
-                      {relatedPost.title}
-                    </h3>
-
-                    <span className="inline-flex items-center gap-1 text-xs text-white/40 group-hover:text-accent-soft transition-colors">
-                      Read Article
-                      <ArrowRight size={13} />
-                    </span>
-
-                  </div>
+                  <span className="inline-flex items-center gap-1 text-xs text-white/40 group-hover:text-accent-soft transition-colors">
+                    Read Lesson
+                    <ArrowRight size={13} />
+                  </span>
 
                 </NavLink>
+
               ))}
 
             </div>
 
           </section>
+
         )}
 
-        {/* Bottom CTA */}
-        <div className="card mt-14 p-8 sm:p-10 text-center bg-gradient-to-br from-accent/15 to-transparent">
+        {/* CTA */}
+        <div className="card mt-12 p-7 sm:p-9 text-center border-accent/20 bg-gradient-to-br from-accent/15 to-transparent">
+
+          <div className="w-11 h-11 mx-auto mb-4 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center">
+
+            <Sparkles
+              size={20}
+              className="text-accent"
+            />
+
+          </div>
 
           <h2 className="text-2xl font-bold mb-2">
-            Have a video project in mind?
+            AI Video Creation Seekhna Hai?
           </h2>
 
-          <p className="text-white/45 mb-6">
-            Let's turn your idea into a cinematic AI video.
+          <p className="text-white/45 max-w-xl mx-auto mb-6">
+            AI video creation, prompting, storytelling,
+            image-to-video, editing aur content strategy
+            ko step-by-step seekhiye.
           </p>
 
           <NavLink
             to="/contact"
             className="btn-primary inline-flex items-center gap-2"
           >
-            Start a Project
+            Start Learning
             <ArrowRight size={16} />
           </NavLink>
 

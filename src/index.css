@@ -54,7 +54,7 @@ h1, h2, h3, h4 {
 }
 
 .section-pad {
-  @apply py-16 sm:py-20;
+  @apply py-8 sm:py-5;
 }
 .payment-desktop-only {
   display: none !important;
