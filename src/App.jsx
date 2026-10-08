@@ -1,4 +1,6 @@
 import { Routes, Route } from 'react-router-dom'
+import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar.jsx'
 import Footer from './components/Footer.jsx'
 import Home from './pages/Home.jsx'
@@ -13,6 +15,11 @@ import Contact from './pages/Contact.jsx'
 import MagicalParticles from './components/MagicalParticles.jsx'
 
 export default function App() {
+  const location = useLocation();
+
+useEffect(() => {
+  window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+}, [location.pathname]);
   return (
     <div className="min-h-screen flex flex-col">
        <MagicalParticles />
