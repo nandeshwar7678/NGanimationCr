@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom'
 import { Clapperboard, BookOpen, Lightbulb, Youtube, Heart, Download } from 'lucide-react'
-import creatorImg from '../assets/aboutcreator.png'
+import creatorImg from '../assets/aboutcreator.jpg'
 
 // TODO: apna YouTube channel link yahan daalo
 const CHANNEL_URL = 'https://www.youtube.com/@nganimationcr'

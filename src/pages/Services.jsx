@@ -1,11 +1,11 @@
 import { NavLink } from 'react-router-dom'
 import { ArrowRight } from 'lucide-react'
-import aianimationS from "../assets/aianimationS.png"
-import aivideocreationS from "../assets/aivideocreation.png"
-import brandedS from "../assets/brandad.png"
-import instagramS from "../assets/instareel.png"
-import youtubeconstentS from "../assets/YouTube.png"
-import storytellingS from "../assets/storytelling.png"
+import aianimationS from "../assets/aianimationS.jpg"
+import aivideocreationS from "../assets/aivideocreation.jpg"
+import brandedS from "../assets/brandad.jpg"
+import instagramS from "../assets/instareel.jpg"
+import youtubeconstentS from "../assets/YouTube.jpg"
+import storytellingS from "../assets/storytelling.jpg"
 
 const services = [
   {

@@ -1,772 +1,324 @@
-import { NavLink } from 'react-router-dom'
+
 import { motion } from 'framer-motion'
 import {
-  Play,
   ArrowRight,
   Sparkles,
-  Instagram,
-  Youtube,
+  Clapperboard,
   Megaphone,
-  Lightbulb,
-  Wand2,
-  Heart,
-  TrendingUp,
+  Youtube,
+  Instagram,
+  MonitorPlay,
+  WandSparkles,
+  Video,
+  CheckCircle2,
+  MessageCircle,
+  Palette,
+  Zap,
 } from 'lucide-react'
 
-import showcaseImg from '../assets/cover.png'
-import heroBg from '../assets/cover.png'
-import aiAnimationImg from '../assets/AIAnimation.png'
-import brandAdImg from '../assets/BrandAdvertisement.png'
-import youtubeImg from '../assets/YoutubeContent.png'
-import instaImg from '../assets/InstagramReels.png'
-
-const stats = [
-  {
-    value: '70M+',
-    label: 'Total Views',
-    icon: TrendingUp,
-  },
-  {
-    value: '250+',
-    label: 'Projects',
-    icon: Wand2,
-  },
-  {
-    value: '80+',
-    label: 'Happy Clients',
-    icon: Heart,
-  },
-  {
-    value: '4+',
-    label: 'Years Experience',
-    icon: Sparkles,
-  },
-]
+import showcaseImg from '../assets/cover.jpg'
+import aiAnimationImg from '../assets/AIAnimation.jpg'
+import brandAdImg from '../assets/BrandAdvertisement.jpg'
+import youtubeImg from '../assets/YoutubeContent.jpg'
+import instaImg from '../assets/InstagramReels.jpg'
 
 const services = [
   {
+    icon: Clapperboard,
     title: 'AI Animation',
     description:
-      'Create cinematic animated stories and characters using modern AI tools.',
+      'Bring your imagination to life with engaging AI-generated stories, characters and cinematic animations.',
     image: aiAnimationImg,
-    icon: Wand2,
+    number: '01',
   },
   {
-    title: 'Brand Advertisement',
-    description:
-      'Creative AI-powered advertisements designed to grab attention and convert viewers.',
-    image: brandAdImg,
     icon: Megaphone,
+    title: 'Brand Advertisements',
+    description:
+      'Creative promotional videos that help your brand stand out and communicate its value.',
+    image: brandAdImg,
+    number: '02',
   },
   {
-    title: 'YouTube Shorts',
-    description:
-      'High-retention short-form videos designed for YouTube growth and reach.',
-    image: youtubeImg,
     icon: Youtube,
+    title: 'YouTube Content',
+    description:
+      'Story-driven videos, engaging visuals and creative content designed for your channel.',
+    image: youtubeImg,
+    number: '03',
   },
   {
-    title: 'Instagram Reels',
-    description:
-      'Engaging and visually powerful reels made to stop the scroll.',
-    image: instaImg,
     icon: Instagram,
+    title: 'Reels & Shorts',
+    description:
+      'Eye-catching short-form videos for creators, businesses and social media brands.',
+    image: instaImg,
+    number: '04',
   },
 ]
 
-const processSteps = [
+const process = [
   {
     number: '01',
-    title: 'The Idea',
-    description:
-      'Har great video ek simple idea se start hota hai. Hum idea ko clear story aur strong concept mein convert karte hain.',
-    icon: Lightbulb,
+    title: 'Share Your Idea',
+    description: 'Tell us your concept, audience and creative vision.',
   },
   {
     number: '02',
-    title: 'AI Creation',
-    description:
-      'AI tools, visuals, characters, animation aur cinematic elements ko combine karke concept ko life di jaati hai.',
-    icon: Wand2,
+    title: 'We Create',
+    description: 'We turn your idea into a polished visual experience.',
   },
   {
     number: '03',
-    title: 'The Emotion',
-    description:
-      'Sirf beautiful visuals enough nahi hote. Story mein emotion, timing aur connection add kiya jata hai.',
-    icon: Heart,
-  },
-  {
-    number: '04',
-    title: 'The Impact',
-    description:
-      'Final goal hai aisa content banana jo audience ko rok kar dekhe, yaad rahe aur share karne par majboor kare.',
-    icon: TrendingUp,
+    title: 'Ready to Publish',
+    description: 'Receive your finished content, ready for your platform.',
   },
 ]
 
 const fadeUp = {
-  hidden: {
-    opacity: 0,
-    y: 30,
-  },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.7,
-      ease: 'easeOut',
-    },
-  },
+  hidden: { opacity: 0, y: 28 },
+  visible: { opacity: 1, y: 0 },
 }
 
 export default function Home() {
   return (
-    <div className="bg-[#050509] text-white overflow-hidden">
+    <main className="min-h-screen overflow-hidden bg-[#070711] text-white">
 
-      {/* =====================================================
-          HERO SECTION
-      ===================================================== */}
-      <section className="relative min-h-[88vh] flex items-center overflow-hidden">
+      {/* FULL-WIDTH CINEMATIC HERO */}
+      <section className="relative flex min-h-[78vh] items-center overflow-hidden bg-[#070711] sm:min-h-[88vh] lg:min-h-screen">
 
-        {/* Background */}
-        <div className="absolute inset-0">
-          <img
-            src={heroBg}
-            alt="AI Creative Background"
-            className="w-full h-full object-cover opacity-20"
-          />
+        <img
+          src={showcaseImg}
+          alt="NGanimationCr creative AI video production"
+       className="absolute inset-0 h-full w-full object-cover object-center lg:object-[50%_center]"
+          fetchPriority="high"
+        />
 
-          <div className="absolute inset-0 bg-gradient-to-r from-[#050509] via-[#050509]/95 to-[#050509]/60" />
+        {/* Faded cinematic overlays */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#070711]/90 via-[#070711]/55 to-[#070711]/10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#070711] via-[#070711]/10 to-[#070711]/25" />
 
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#050509]/30 to-[#050509]" />
+        <div className="relative z-10 mx-auto flex w-full max-w-7xl items-center px-6 py-28 sm:px-10 lg:px-16">
+          <motion.div
+            initial={{ opacity: 0, y: 28 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.9 }}
+            className="max-w-4xl"
+          >
+            <p className="mb-6 text-xs font-semibold uppercase tracking-[0.3em] text-violet-200/90 sm:text-sm sm:tracking-[0.38em]">
+              AI Animation · Digital Creativity · Visual Stories
+            </p>
+
+            <h1 className="text-5xl font-black leading-[1.08] tracking-tight text-white/95 sm:text-7xl lg:text-8xl">
+              Ideas Into
+              <span className="block bg-gradient-to-r from-white via-violet-200 to-blue-300 bg-clip-text text-transparent">
+                Extraordinary
+              </span>
+              <span className="block text-white/65">
+                Visual Stories.
+              </span>
+            </h1>
+
+            <p className="mt-7 max-w-2xl text-base leading-8 text-white/70 sm:text-xl">
+              AI-powered animation, cinematic storytelling and creative
+              video production for brands, creators and bold ideas.
+            </p>
+
+            <div className="mt-9 flex flex-wrap gap-4">
+              <a
+                href="/portfolio"
+                className="group inline-flex items-center gap-3 rounded-xl border border-white/20 bg-white/10 px-6 py-4 font-semibold text-white backdrop-blur-md transition duration-300 hover:-translate-y-1 hover:border-violet-300/60 hover:bg-white/15"
+              >
+                Explore Our Work
+                <ArrowRight
+                  size={18}
+                  className="transition group-hover:translate-x-1"
+                />
+              </a>
+
+              <a
+                href="/contact"
+                className="inline-flex items-center gap-2 px-5 py-4 font-semibold text-white/75 transition hover:text-white"
+              >
+                <MessageCircle size={18} />
+                Start a Project
+              </a>
+            </div>
+          </motion.div>
         </div>
 
-        {/* Soft glow */}
-        <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-purple-600/10 blur-[120px]" />
-        <div className="absolute bottom-0 right-0 w-[500px] h-[500px] rounded-full bg-indigo-600/10 blur-[150px]" />
-
-        <div className="container-x relative z-10 w-full py-20 sm:py-24">
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-
-            {/* Hero Content */}
-            <motion.div
-              initial="hidden"
-              animate="visible"
-              variants={fadeUp}
-              className="max-w-3xl"
-            >
-              {/* Small Badge */}
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-white/[0.04] backdrop-blur-md text-sm text-white/70 mb-6">
-                <Sparkles size={15} className="text-purple-300" />
-                AI Content Creator & Digital Storyteller
-              </div>
-
-              {/* Heading */}
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold leading-[1.05] tracking-tight">
-                Turning
-                <span className="block text-transparent bg-clip-text bg-gradient-to-r from-purple-300 via-indigo-300 to-blue-300">
-                  Ideas Into
-                </span>
-                Stories People Remember.
-              </h1>
-
-              {/* Description */}
-              <p className="mt-6 text-base sm:text-lg leading-8 text-white/60 max-w-2xl">
-                I create AI-powered animations, cinematic videos,
-                advertisements and social media content that transforms
-                simple ideas into powerful visual experiences.
-              </p>
-
-              {/* Buttons */}
-              <div className="flex flex-wrap items-center gap-4 mt-8">
-
-                <NavLink
-                  to="/portfolio"
-                  className="btn-primary inline-flex items-center gap-2"
-                >
-                  <Play size={17} />
-                  View My Work
-                </NavLink>
-
-                <NavLink
-                  to="/contact"
-                  className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl border border-white/10 bg-white/[0.04] hover:bg-white/[0.08] transition-all duration-300"
-                >
-                  Let's Work Together
-                  <ArrowRight size={17} />
-                </NavLink>
-
-              </div>
-
-              {/* Mini Trust */}
-              <div className="flex flex-wrap items-center gap-6 mt-10 text-sm text-white/40">
-                <span>✓ AI Video Creation</span>
-                <span>✓ Cinematic Storytelling</span>
-                <span>✓ Social Media Content</span>
-              </div>
-            </motion.div>
-
-            {/* Hero Image */}
-            <motion.div
-              initial={{ opacity: 0, x: 50, scale: 0.96 }}
-              animate={{ opacity: 1, x: 0, scale: 1 }}
-              transition={{
-                duration: 0.9,
-                ease: 'easeOut',
-              }}
-              className="relative"
-            >
-              <div className="relative max-w-xl mx-auto">
-
-                {/* Glow */}
-                <div className="absolute inset-10 bg-purple-600/20 blur-[100px]" />
-
-                {/* Image */}
-                <div className="relative rounded-3xl overflow-hidden border border-white/10 bg-white/[0.03] shadow-2xl">
-                  <img
-                    src={showcaseImg}
-                    alt="NGanimationCr Creative Work"
-                    className="w-full h-auto object-cover"
-                  />
-
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
-                </div>
-
-                {/* Floating label */}
-                <motion.div
-                  animate={{
-                    y: [0, -8, 0],
-                  }}
-                  transition={{
-                    duration: 4,
-                    repeat: Infinity,
-                    ease: 'easeInOut',
-                  }}
-                  className="absolute -bottom-5 -left-4 sm:-left-8 px-4 py-3 rounded-2xl border border-white/10 bg-[#0b0b12]/90 backdrop-blur-xl shadow-xl"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center">
-                      <Sparkles size={18} className="text-purple-300" />
-                    </div>
-
-                    <div>
-                      <p className="text-xs text-white/40">
-                        Creative Power
-                      </p>
-                      <p className="text-sm font-semibold">
-                        AI × Storytelling
-                      </p>
-                    </div>
-                  </div>
-                </motion.div>
-
-              </div>
-            </motion.div>
-
-          </div>
+        {/* Minimal bottom label; no floating cards or play button */}
+        <div className="absolute bottom-8 right-6 z-10 hidden text-right sm:block lg:right-16">
+          <p className="text-xs uppercase tracking-[0.3em] text-white/40">
+            Creative Studio
+          </p>
+          <p className="mt-2 text-sm text-white/60">NGanimationCr</p>
         </div>
       </section>
 
+      {/* CREATIVE STRIP */}
+      <section className="border-y border-white/[0.07] bg-white/[0.025] px-5 py-7 sm:px-8 lg:px-16">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-10 gap-y-5 text-center text-sm font-medium text-gray-300 sm:justify-between">
+          <span className="flex items-center gap-2">
+            <Sparkles size={17} className="text-violet-400" />
+            AI-Powered Creativity
+          </span>
 
-      {/* =====================================================
-          STATS
-      ===================================================== */}
-      <section className="border-y border-white/[0.06] bg-white/[0.015]">
-        <div className="container-x py-8 sm:py-10">
+          <span className="flex items-center gap-2">
+            <Clapperboard size={17} className="text-violet-400" />
+            Cinematic Storytelling
+          </span>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+          <span className="flex items-center gap-2">
+            <MonitorPlay size={17} className="text-violet-400" />
+            Digital Content
+          </span>
 
-            {stats.map((stat, index) => {
-              const Icon = stat.icon
-
-              return (
-                <motion.div
-                  key={stat.label}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{
-                    duration: 0.5,
-                    delay: index * 0.08,
-                  }}
-                  className="flex items-center gap-4"
-                >
-                  <div className="w-11 h-11 rounded-xl border border-white/10 bg-white/[0.04] flex items-center justify-center shrink-0">
-                    <Icon size={19} className="text-purple-300" />
-                  </div>
-
-                  <div>
-                    <div className="text-xl sm:text-2xl font-bold">
-                      {stat.value}
-                    </div>
-
-                    <div className="text-xs sm:text-sm text-white/40">
-                      {stat.label}
-                    </div>
-                  </div>
-                </motion.div>
-              )
-            })}
-
-          </div>
-
+          <span className="flex items-center gap-2">
+            <Palette size={17} className="text-violet-400" />
+            Creative Solutions
+          </span>
         </div>
       </section>
 
-
-      {/* =====================================================
-          SERVICES
-      ===================================================== */}
-      <section className="section-pad relative">
-
-        <div className="container-x">
-
-          {/* Section Heading */}
+      {/* SERVICES */}
+     <section className="px-5 pt-16 pb-0 sm:px-8 sm:pt-20 lg:px-16 lg:pt-24">
+        <div className="mx-auto max-w-7xl">
           <motion.div
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, amount: 0.2 }}
             variants={fadeUp}
-            className="max-w-2xl mb-12"
+            transition={{ duration: 0.6 }}
+            className="mx-auto mb-14 max-w-2xl text-center"
           >
-            <div className="flex items-center gap-2 text-sm text-purple-300 mb-3">
-              <Sparkles size={16} />
-              What I Create
-            </div>
+            <p className="text-sm font-bold uppercase tracking-[0.3em] text-violet-400">
+              What We Create
+            </p>
 
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold">
-              Creative Content
-              <span className="text-white/40"> That Stands Out.</span>
+            <h2 className="mt-4 text-3xl font-black sm:text-5xl">
+              Creative Services for
+              <span className="block bg-gradient-to-r from-violet-400 to-blue-400 bg-clip-text text-transparent">
+                The Digital World
+              </span>
             </h2>
 
-            <p className="mt-4 text-white/50 leading-7">
-              From AI animations to social media reels, I create
-              visually engaging content designed to capture attention
-              and tell a story.
+            <p className="mt-5 leading-7 text-gray-400">
+              From the first idea to the final frame, we help transform your
+              vision into compelling digital content.
             </p>
           </motion.div>
 
-
-          {/* Service Grid */}
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-
+          <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
             {services.map((service, index) => {
               const Icon = service.icon
 
               return (
-                <motion.div
-                  key={service.title}
-                  initial={{
-                    opacity: 0,
-                    y: 30,
-                  }}
-                  whileInView={{
-                    opacity: 1,
-                    y: 0,
-                  }}
-                  viewport={{
-                    once: true,
-                    amount: 0.15,
-                  }}
-                  transition={{
-                    duration: 0.55,
-                    delay: index * 0.08,
-                  }}
-                  className="group"
+                <motion.article
+                  key={service.number}
+                  initial={{ opacity: 0, y: 28 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.15 }}
+                  transition={{ duration: 0.5, delay: index * 0.08 }}
+                  className="group overflow-hidden rounded-2xl border border-white/[0.09] bg-[#10101b] transition duration-300 hover:-translate-y-2 hover:border-violet-400/40 hover:bg-[#141423]"
                 >
+                  <div className="relative h-48 overflow-hidden">
+                    <img
+                      src={service.image}
+                      alt={service.title}
+                      loading="lazy"
+                      className="h-full w-full object-cover transition duration-700 group-hover:scale-110"
+                    />
 
-                  <div className="h-full rounded-2xl border border-white/[0.08] bg-white/[0.025] overflow-hidden hover:border-white/[0.16] hover:bg-white/[0.04] transition-all duration-500">
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#10101b] via-transparent to-black/10" />
 
-                    {/* Image */}
-                    <div className="relative aspect-[4/3] overflow-hidden">
-
-                      <img
-                        src={service.image}
-                        alt={service.title}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                      />
-
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
-
-                      {/* Icon */}
-                      <div className="absolute top-4 left-4 w-10 h-10 rounded-xl border border-white/10 bg-black/40 backdrop-blur-md flex items-center justify-center">
-                        <Icon
-                          size={18}
-                          className="text-white"
-                        />
-                      </div>
-
-                    </div>
-
-
-                    {/* Content */}
-                    <div className="p-5">
-
-                      <h3 className="text-lg font-semibold">
-                        {service.title}
-                      </h3>
-
-                      <p className="mt-2 text-sm leading-6 text-white/45">
-                        {service.description}
-                      </p>
-
-                      <NavLink
-                        to="/services"
-                        className="inline-flex items-center gap-2 mt-5 text-sm text-white/70 hover:text-white transition-colors"
-                      >
-                        Explore Service
-                        <ArrowRight
-                          size={15}
-                          className="transition-transform group-hover:translate-x-1"
-                        />
-                      </NavLink>
-
-                    </div>
-
+                    <span className="absolute right-4 top-4 rounded-lg border border-white/15 bg-black/40 px-3 py-1 text-xs text-white backdrop-blur-md">
+                      {service.number}
+                    </span>
                   </div>
 
-                </motion.div>
+                  <div className="p-6">
+                    <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl border border-violet-400/20 bg-violet-500/10 text-violet-300 transition group-hover:bg-violet-500/20">
+                      <Icon size={22} />
+                    </div>
+
+                    <h3 className="text-xl font-bold">{service.title}</h3>
+
+                    <p className="mt-3 min-h-[84px] text-sm leading-7 text-gray-400">
+                      {service.description}
+                    </p>
+
+                    <a
+                      href="/contact"
+                      className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-violet-300 transition hover:text-white"
+                    >
+                      Discuss a Project
+                      <ArrowRight
+                        size={16}
+                        className="transition group-hover:translate-x-1"
+                      />
+                    </a>
+                  </div>
+                </motion.article>
               )
             })}
-
           </div>
-
         </div>
       </section>
 
+     
 
-      {/* =====================================================
-          CREATIVE PROCESS
-      ===================================================== */}
-      <section className="section-pad relative bg-white/[0.012] border-y border-white/[0.05]">
+      {/* HOW IT WORKS */}
+      <section className="px-5 pt-16 pb-8 sm:px-8 lg:px-16">
+        <div className="mx-auto max-w-7xl">
+          <div className="mx-auto mb-14 max-w-2xl text-center">
+            <p className="text-sm font-bold uppercase tracking-[0.3em] text-violet-400">
+              How It Works
+            </p>
 
-        <div className="container-x">
-
-          {/* Heading */}
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.2 }}
-            variants={fadeUp}
-            className="max-w-3xl mb-12"
-          >
-            <div className="flex items-center gap-2 text-sm text-purple-300 mb-3">
-              <Sparkles size={16} />
-              My Creative Process
-            </div>
-
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight">
-              From a Simple Idea
-              <span className="block text-white/40">
-                to Something People Remember.
+            <h2 className="mt-4 text-3xl font-black sm:text-5xl">
+              Simple Process.
+              <span className="block text-gray-400">
+                Powerful Results.
               </span>
             </h2>
-
-            <p className="mt-5 text-white/50 leading-7 max-w-2xl">
-              Every project is more than just visuals. The goal is to
-              create an experience that looks beautiful, feels emotional
-              and leaves an impact.
-            </p>
-          </motion.div>
-
-
-          <div className="grid lg:grid-cols-[1.05fr_1fr] gap-10 lg:gap-14 items-center">
-
-            {/* Large Image */}
-            <motion.div
-              initial={{
-                opacity: 0,
-                x: -30,
-              }}
-              whileInView={{
-                opacity: 1,
-                x: 0,
-              }}
-              viewport={{
-                once: true,
-                amount: 0.2,
-              }}
-              transition={{
-                duration: 0.7,
-              }}
-              className="relative"
-            >
-
-              <div className="absolute -inset-5 bg-purple-600/10 blur-[80px]" />
-
-              <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03]">
-
-                <img
-                  src={showcaseImg}
-                  alt="Creative AI Storytelling"
-                  className="w-full aspect-[4/3] object-cover"
-                />
-
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-
-                <div className="absolute bottom-5 left-5 right-5">
-                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-black/40 backdrop-blur-md border border-white/10 text-sm text-white/80">
-                    <Sparkles
-                      size={15}
-                      className="text-purple-300"
-                    />
-                    AI × Creativity × Storytelling
-                  </div>
-                </div>
-
-              </div>
-
-            </motion.div>
-
-
-            {/* Process Steps */}
-            <div className="space-y-4">
-
-              {processSteps.map((step, index) => {
-                const Icon = step.icon
-
-                return (
-                  <motion.div
-                    key={step.number}
-                    initial={{
-                      opacity: 0,
-                      x: 30,
-                    }}
-                    whileInView={{
-                      opacity: 1,
-                      x: 0,
-                    }}
-                    viewport={{
-                      once: true,
-                      amount: 0.2,
-                    }}
-                    transition={{
-                      duration: 0.55,
-                      delay: index * 0.08,
-                    }}
-                    className="group flex gap-4 p-5 rounded-2xl border border-white/[0.07] bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/[0.13] transition-all duration-300"
-                  >
-
-                    {/* Number */}
-                    <div className="shrink-0">
-
-                      <div className="w-11 h-11 rounded-xl border border-white/10 bg-white/[0.04] flex items-center justify-center text-xs font-semibold text-white/50">
-                        {step.number}
-                      </div>
-
-                    </div>
-
-
-                    {/* Content */}
-                    <div className="flex-1">
-
-                      <div className="flex items-center gap-2">
-
-                        <Icon
-                          size={17}
-                          className="text-purple-300"
-                        />
-
-                        <h3 className="font-semibold">
-                          {step.title}
-                        </h3>
-
-                      </div>
-
-                      <p className="mt-2 text-sm leading-6 text-white/45">
-                        {step.description}
-                      </p>
-
-                    </div>
-
-                  </motion.div>
-                )
-              })}
-
-            </div>
-
           </div>
 
+          <div className="grid gap-6 md:grid-cols-3">
+            {process.map((step, index) => (
+              <motion.div
+                key={step.number}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.12 }}
+                className="relative rounded-2xl border border-white/10 bg-[#10101b] p-4 transition hover:border-violet-400/30 sm:p-9"
+              >
+                <span className="text-sm font-bold tracking-widest text-violet-400">
+                  STEP {step.number}
+                </span>
 
-          {/* Bottom CTA */}
-          <motion.div
-            initial={{
-              opacity: 0,
-              y: 20,
-            }}
-            whileInView={{
-              opacity: 1,
-              y: 0,
-            }}
-            viewport={{
-              once: true,
-            }}
-            className="mt-12 rounded-2xl border border-white/[0.08] bg-gradient-to-r from-purple-500/[0.08] to-indigo-500/[0.05] p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6"
-          >
+                <h3 className="mt-5 text-2xl font-bold">{step.title}</h3>
 
-            <div>
-              <h3 className="text-xl sm:text-2xl font-semibold">
-                Have an idea in mind?
-              </h3>
-
-              <p className="mt-2 text-sm text-white/45">
-                Let's turn it into something people can't ignore.
-              </p>
-            </div>
-
-            <NavLink
-              to="/contact"
-              className="btn-primary inline-flex items-center gap-2 shrink-0"
-            >
-              Start a Project
-              <ArrowRight size={17} />
-            </NavLink>
-
-          </motion.div>
-
-        </div>
-      </section>
-
-
-      {/* =====================================================
-          LEARNING / CREATOR CTA
-      ===================================================== */}
-      <section className="section-pad">
-
-        <div className="container-x">
-
-          <motion.div
-            initial={{
-              opacity: 0,
-              y: 30,
-            }}
-            whileInView={{
-              opacity: 1,
-              y: 0,
-            }}
-            viewport={{
-              once: true,
-            }}
-            transition={{
-              duration: 0.7,
-            }}
-            className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-purple-500/[0.10] via-white/[0.025] to-indigo-500/[0.06] p-8 sm:p-12"
-          >
-
-            {/* Background glow */}
-            <div className="absolute -top-32 -right-32 w-80 h-80 rounded-full bg-purple-500/10 blur-[100px]" />
-
-            <div className="relative z-10 grid lg:grid-cols-[1fr_auto] gap-8 items-center">
-
-              <div className="max-w-2xl">
-
-                <div className="inline-flex items-center gap-2 text-sm text-purple-300 mb-4">
-                  <Sparkles size={16} />
-                  Want to Learn AI Video Creation?
-                </div>
-
-                <h2 className="text-3xl sm:text-4xl font-bold">
-                  Learn AI Video Creation
-                  <span className="text-white/40">
-                    {' '}From Zero to Pro.
-                  </span>
-                </h2>
-
-                <p className="mt-4 text-white/50 leading-7">
-                  Learn how AI videos are created, how to write better
-                  prompts, create consistent characters, generate
-                  cinematic visuals and build content for social media.
+                <p className="mt-3 leading-7 text-gray-400">
+                  {step.description}
                 </p>
 
-              </div>
-
-
-              <NavLink
-                to="/blog"
-                className="btn-primary inline-flex items-center justify-center gap-2 whitespace-nowrap"
-              >
-                Explore Learning Hub
-                <ArrowRight size={17} />
-              </NavLink>
-
-            </div>
-
-          </motion.div>
-
+                {index < 2 && (
+                  <ArrowRight
+                    className="absolute right-7 top-8 hidden text-violet-400/50 md:block"
+                    size={22}
+                  />
+                )}
+              </motion.div>
+            ))}
+          </div>
         </div>
-
       </section>
 
-
-      {/* =====================================================
-          FINAL CTA
-      ===================================================== */}
-      <section className="pb-20 sm:pb-24">
-
-        <div className="container-x">
-
-          <motion.div
-            initial={{
-              opacity: 0,
-              scale: 0.98,
-            }}
-            whileInView={{
-              opacity: 1,
-              scale: 1,
-            }}
-            viewport={{
-              once: true,
-            }}
-            transition={{
-              duration: 0.7,
-            }}
-            className="text-center max-w-3xl mx-auto"
-          >
-
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl border border-white/10 bg-white/[0.04] mb-5">
-              <Sparkles
-                size={20}
-                className="text-purple-300"
-              />
-            </div>
-
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold">
-              Ready to Create Something
-              <span className="text-white/40"> Amazing?</span>
-            </h2>
-
-            <p className="mt-4 text-white/45 leading-7 max-w-xl mx-auto">
-              Whether you have a brand idea, a story or just a concept,
-              let's transform it into powerful visual content.
-            </p>
-
-            <div className="flex flex-wrap justify-center gap-4 mt-8">
-
-              <NavLink
-                to="/contact"
-                className="btn-primary inline-flex items-center gap-2"
-              >
-                Start Your Project
-                <ArrowRight size={17} />
-              </NavLink>
-
-              <NavLink
-                to="/portfolio"
-                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.07] transition-all duration-300"
-              >
-                View Portfolio
-                <Play size={16} />
-              </NavLink>
-
-            </div>
-
-          </motion.div>
-
-        </div>
-
-      </section>
-
-    </div>
+      {/* FOOTER */}
+      <footer className="border-t border-white/[0.08] px-5 py-7 sm:px-8 lg:px-16">
+      </footer>
+    </main>
   )
 }

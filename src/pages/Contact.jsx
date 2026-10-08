@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import paymentCharacter from '../assets/paymentChar.png'
-import letsConnectCharacters from '../assets/letsConnect.png'
+import letsConnectCharacters from '../assets/letsConnect.jpg'
 import {
   Mail,
   Phone,
