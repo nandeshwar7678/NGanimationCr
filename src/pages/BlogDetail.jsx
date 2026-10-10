@@ -145,8 +145,8 @@ export default function BlogDetail() {
           <ArrowLeft size={15} />
           Back to Learning Hub
         </NavLink>
-        
-               {/* HERO WITH UNIVERSAL BACKGROUND IMAGE */}
+
+        {/* HERO WITH UNIVERSAL BACKGROUND IMAGE */}
         <div className="relative isolate overflow-hidden rounded-3xl border border-white/10 mb-8 min-h-[320px] sm:min-h-[350px] bg-[#101225]">
 
           {/* Background Image */}
@@ -248,9 +248,39 @@ export default function BlogDetail() {
 
                 <div className="flex-1">
 
-                  <h2 className="text-xl sm:text-2xl font-semibold mb-3">
-                    {section.heading}
-                  </h2>
+
+
+
+
+
+                  <div className="relative mb-6">
+                    <svg
+                      className="absolute inset-0 w-full h-full pointer-events-none
+      drop-shadow-[0_4px_5px_rgba(251,191,36,0.25)]"
+                      viewBox="0 0 100 100"
+                      preserveAspectRatio="none"
+                    >
+                      <polygon
+                        points="0,0 88,0 100,100 0,100"
+                        fill="rgba(251,191,36,0.04)"
+                        stroke="#fbbf24"
+                        strokeWidth="0.5"
+                        vectorEffect="non-scaling-stroke"
+                      />
+                    </svg>
+
+                    <h2
+                      className="relative px-5 py-4 pr-10 text-xl sm:text-2xl
+      font-bold text-white"
+                    >
+                      {section.heading}
+                    </h2>
+                  </div>
+
+
+
+
+
 
                   <p className="text-white/60 leading-8 text-base sm:text-lg">
                     {section.text}
@@ -386,43 +416,43 @@ export default function BlogDetail() {
 
         {/* CTA */}
         <div
-className="relative isolate overflow-hidden rounded-3xl mt-12 p-7 sm:p-9 text-center border-0"
-  style={{
-    backgroundImage: `linear-gradient(rgba(15,18,45,0.45), rgba(15,18,45,0.70)), url(${youWantLearn})`,
-    backgroundSize: 'cover',
-    backgroundPosition: 'top',
-    backgroundRepeat: 'no-repeat',
-  }}
->
-  <div className="relative z-10">
+          className="relative isolate overflow-hidden rounded-3xl mt-12 p-7 sm:p-9 text-center border-0"
+          style={{
+            backgroundImage: `linear-gradient(rgba(15,18,45,0.45), rgba(15,18,45,0.70)), url(${youWantLearn})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'top',
+            backgroundRepeat: 'no-repeat',
+          }}
+        >
+          <div className="relative z-10">
 
-    <div className="w-11 h-11 mx-auto mb-4 rounded-xl bg-accent/20 border border-accent/30 flex items-center justify-center">
-      <Sparkles
-        size={20}
-        className="text-accent"
-      />
-    </div>
+            <div className="w-11 h-11 mx-auto mb-4 rounded-xl bg-accent/20 border border-accent/30 flex items-center justify-center">
+              <Sparkles
+                size={20}
+                className="text-accent"
+              />
+            </div>
 
-    <h2 className="text-2xl font-bold mb-2 text-white">
-      AI Video Creation Seekhna Hai?
-    </h2>
+            <h2 className="text-2xl font-bold mb-2 text-white">
+              AI Video Creation Seekhna Hai?
+            </h2>
 
-    <p className="text-white/80 max-w-xl mx-auto mb-6">
-      AI video creation, prompting, storytelling,
-      image-to-video, editing aur content strategy
-      ko step-by-step seekhiye.
-    </p>
+            <p className="text-white/80 max-w-xl mx-auto mb-6">
+              AI video creation, prompting, storytelling,
+              image-to-video, editing aur content strategy
+              ko step-by-step seekhiye.
+            </p>
 
-    <NavLink
-      to="/contact"
-      className="btn-primary inline-flex items-center gap-2"
-    >
-      Start Learning
-      <ArrowRight size={16} />
-    </NavLink>
+            <NavLink
+              to="/contact"
+              className="btn-primary inline-flex items-center gap-2"
+            >
+              Start Learning
+              <ArrowRight size={16} />
+            </NavLink>
 
-  </div>
-</div>
+          </div>
+        </div>
 
       </article>
     </div>

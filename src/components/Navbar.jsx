@@ -6,13 +6,13 @@ import InteractiveBrandText from './InteractiveBrandText'
 
 const links = [
   { to: '/', label: 'Home' },
-  { to: '/about', label: 'About' },
   { to: '/services', label: 'Services' },
   { to: '/portfolio', label: 'Portfolio' },
   // { to: '/videos', label: 'Videos' },
   { to: '/blog', label: 'Blog' },
   { to: '/pricing', label: 'Pricing' },
   { to: '/contact', label: 'Contact' },
+  { to: '/about', label: 'About' },
 ]
 
 export default function Navbar() {

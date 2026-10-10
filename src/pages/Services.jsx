@@ -6,6 +6,7 @@ import brandedS from "../assets/brandad.jpg"
 import instagramS from "../assets/instareel.jpg"
 import youtubeconstentS from "../assets/YouTube.jpg"
 import storytellingS from "../assets/storytelling.jpg"
+import thinkingBoy from '../assets/thinkingboy.png'
 
 const services = [
   {
@@ -72,20 +73,38 @@ export default function Services() {
           ))}
         </div>
 
-        <div className="card p-10 sm:p-14 flex flex-col sm:flex-row items-center justify-between gap-6 bg-gradient-to-r from-accent/20 to-transparent">
-          <div>
-            <h3 className="text-2xl font-bold mb-1">Have a project in mind?</h3>
-            <p className="text-white/50">Let's discuss how I can help you.</p>
+
+        <div
+          className="card relative overflow-hidden p-10 sm:p-14 flex flex-col sm:flex-row items-center justify-between gap-6 border-none"
+          style={{
+            backgroundImage: `linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.65)), url(${thinkingBoy})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'top',
+            backgroundRepeat: 'no-repeat',
+          }}
+        >
+          <div className="relative z-10">
+            <h3 className="text-2xl font-bold mb-1">
+              Have a project in mind?
+            </h3>
+            <p className="text-white/80">
+              Let's discuss how I can help you.
+            </p>
           </div>
+
           <a
-                href="/Quotation.pdf"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-outline"
-              >
-                Get a Quote
-              </a>
+            href="/Quotation.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-outline relative z-10 shrink-0"
+          >
+            Get a Quote
+          </a>
         </div>
+
+
+
+
       </div>
     </div>
   )

@@ -2,6 +2,7 @@ import { useState, useRef } from 'react'
 
 import ad1 from '../assets/videos/ad1.mp4'
 import ad2 from '../assets/videos/ad2.mp4'
+import ad3 from '../assets/videos/ad3.mp4'
 import YouTubeShorts from '../assets/videos/YouTubeShorts.mp4'
 import NatureReel from '../assets/videos/NatureReel.mp4'
 
@@ -22,12 +23,30 @@ const categories = [
 // =====================================
 
 const projects = [
+   {
+    id: 'nature-reel',
+    title: 'Nature Reel',
+    video: NatureReel,
+    tag: 'Reels',
+    meta: 'Reels',
+    ratio: 'short',
+  },
+  {
+    id: 'youtube-shorts',
+    title: 'YouTube Shorts',
+    video: YouTubeShorts,
+    tag: 'Reels',
+    meta: 'Shorts',
+    ratio: 'short',
+  },
+
   {
     id: 'brand-ad',
     title: 'Brand Ad',
     video: ad1,
     tag: 'Advertisement',
-    meta: '990K views · 1 week ago',
+    meta: '990K views · 1 month ago',
+    ratio: 'short',
   },
 
   {
@@ -36,23 +55,17 @@ const projects = [
     video: ad2,
     tag: 'Advertisement',
     meta: 'Advertisement',
+    ratio: 'short',
   },
-
-  {
-    id: 'youtube-shorts',
-    title: 'YouTube Shorts',
-    video: YouTubeShorts,
-    tag: 'Reels',
-    meta: 'Shorts',
+   {
+    id: 'brand-ad',
+    title: 'Product Ad',
+    video: ad3,
+    tag: 'Advertisement',
+    meta: '440K views · 1 week ago',
+    ratio: 'short',
   },
-
-  {
-    id: 'nature-reel',
-    title: 'Nature Reel',
-    video: NatureReel,
-    tag: 'Reels',
-    meta: 'Reels',
-  },
+ 
 ]
 
 
@@ -68,8 +81,8 @@ export default function Portfolio() {
     active === 'All'
       ? projects
       : projects.filter(
-          (project) => project.tag === active
-        )
+        (project) => project.tag === active
+      )
 
 
   // =====================================
@@ -139,14 +152,13 @@ export default function Portfolio() {
                 transition-all
                 duration-300
 
-                ${
-                  active === category
-                    ? `
+                ${active === category
+                  ? `
                       bg-accent
                       text-white
                       shadow-[0_5px_20px_rgba(109,93,246,0.25)]
                     `
-                    : `
+                  : `
                       bg-white/5
                       text-white/60
                       hover:bg-white/10
@@ -185,37 +197,37 @@ export default function Portfolio() {
               "
             >
 
-              {/* VIDEO */}
 
-              <div className="aspect-video bg-black relative">
 
+              {/* VIDEO PLAYER */}
+
+              <div
+                className="
+    relative mx-auto w-full max-w-[280px]
+    aspect-[9/16] overflow-hidden
+    rounded-xl bg-black
+  "
+              >
                 <video
                   key={project.id}
                   ref={(element) => {
-
                     if (element) {
                       videoRefs.current[project.id] = element
                     } else {
                       delete videoRefs.current[project.id]
                     }
-
                   }}
                   src={project.video}
-                  className="
-                    w-full
-                    h-full
-                    object-cover
-                  "
+                  className="block w-full h-full object-contain"
                   controls
+                  controlsList="nodownload noplaybackrate"
+                   disablePictureInPicture
                   playsInline
                   preload="metadata"
-
-                  onPlay={() => {
-                    handlePlay(project.id)
-                  }}
+                  onPlay={() => handlePlay(project.id)}
                 />
-
               </div>
+
 
 
               {/* ================================= */}
