@@ -22,8 +22,9 @@ const categories = [
 // PROJECTS
 // =====================================
 
+
 const projects = [
-   {
+  {
     id: 'nature-reel',
     title: 'Nature Reel',
     video: NatureReel,
@@ -39,34 +40,32 @@ const projects = [
     meta: 'Shorts',
     ratio: 'short',
   },
-
   {
-    id: 'brand-ad',
+    id: 'brand-ad-1',
     title: 'Brand Ad',
     video: ad1,
     tag: 'Advertisement',
     meta: '990K views · 1 month ago',
     ratio: 'short',
   },
-
   {
-    id: 'product-ad',
+    id: 'product-ad-2',
     title: 'Product Ad',
     video: ad2,
     tag: 'Advertisement',
     meta: 'Advertisement',
     ratio: 'short',
   },
-   {
-    id: 'brand-ad',
-    title: 'Product Ad',
+  {
+    id: 'product-ad-3',
+    title: 'Product Ad 2',
     video: ad3,
     tag: 'Advertisement',
     meta: '440K views · 1 week ago',
     ratio: 'short',
   },
- 
 ]
+
 
 
 export default function Portfolio() {
@@ -221,7 +220,7 @@ export default function Portfolio() {
                   className="block w-full h-full object-contain"
                   controls
                   controlsList="nodownload noplaybackrate"
-                   disablePictureInPicture
+                  disablePictureInPicture
                   playsInline
                   preload="metadata"
                   onPlay={() => handlePlay(project.id)}

@@ -592,11 +592,11 @@ export default function Blog() {
 
         {/* HERO */}
         <div
-          className="relative isolate overflow-hidden rounded-3xl mb-8 p-7 sm:p-10 min-h-[300px] sm:min-h-[350px] flex items-center"
+          className="relative isolate overflow-hidden rounded-3xl mb-8 p-7 sm:p-10 min-h-[200px] sm:min-h-[350px] flex items-center"
           style={{
             backgroundImage: `url(${learningBg})`,
             backgroundSize: 'cover',
-            backgroundPosition: 'center',
+            backgroundPosition: '60% center',
 
           }}
         >
