@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
+import learningBg from '../assets/blog/learningcover.jpg'
+import youWantLearn from '../assets/blog/youWantLearn.jpg'
 import {
   ArrowRight,
   Clock,
@@ -13,20 +15,20 @@ import {
   PlayCircle,
 } from 'lucide-react'
 
-import blog1 from '../assets/blog/1.jpg'
-import blog2 from '../assets/blog/2.jpg'
-import blog3 from '../assets/blog/3.jpg'
-import blog4 from '../assets/blog/4.jpg'
-import blog5 from '../assets/blog/5.jpg'
-import blog6 from '../assets/blog/6.jpg'
-import blog7 from '../assets/blog/7.jpg'
-import blog8 from '../assets/blog/8.jpg'
-import blog9 from '../assets/blog/9.jpg'
-import blog10 from '../assets/blog/10.jpg'
-import blog11 from '../assets/blog/11.jpg'
-import blog12 from '../assets/blog/12.jpg'
-import blog13 from '../assets/blog/13.jpg'
-import blog14 from '../assets/blog/14.jpg'
+import blog1 from '../assets/blog/1.png'
+import blog2 from '../assets/blog/2.png'
+import blog3 from '../assets/blog/3.png'
+import blog4 from '../assets/blog/4.png'
+import blog5 from '../assets/blog/5.png'
+import blog6 from '../assets/blog/6.png'
+import blog7 from '../assets/blog/7.png'
+import blog8 from '../assets/blog/8.png'
+import blog9 from '../assets/blog/9.png'
+import blog10 from '../assets/blog/10.png'
+import blog11 from '../assets/blog/11.png'
+import blog12 from '../assets/blog/12.png'
+import blog13 from '../assets/blog/13.png'
+import blog14 from '../assets/blog/14.png'
 
 export const posts = [
   {
@@ -35,7 +37,7 @@ export const posts = [
     date: 'Oct 08, 2026',
     read: '10 min read',
     tag: 'AI Video',
-    level: 'Beginner',
+    // level: 'Beginner',
     icon: Wand2,
     image: blog1,
     excerpt:
@@ -85,7 +87,7 @@ export const posts = [
     date: 'Oct 07, 2026',
     read: '8 min read',
     tag: 'Prompting',
-    level: 'Beginner',
+    // level: 'Beginner',
     icon: Sparkles,
     image: blog2,
     excerpt:
@@ -120,7 +122,7 @@ export const posts = [
     date: 'Oct 06, 2026',
     read: '7 min read',
     tag: 'AI Production',
-    level: 'Beginner',
+    // level: 'Beginner',
     icon: PlayCircle,
     image: blog3,
     excerpt:
@@ -190,7 +192,7 @@ export const posts = [
     date: 'Oct 04, 2026',
     read: '9 min read',
     tag: 'Storytelling',
-    level: 'Beginner',
+    // level: 'Beginner',
     icon: BookOpen,
     image: blog5,
     excerpt:
@@ -220,7 +222,7 @@ export const posts = [
     date: 'Oct 03, 2026',
     read: '7 min read',
     tag: 'Content Strategy',
-    level: 'Beginner',
+    // level: 'Beginner',
     icon: Sparkles,
     image: blog6,
     excerpt:
@@ -295,7 +297,7 @@ export const posts = [
     date: 'Oct 01, 2026',
     read: '7 min read',
     tag: 'YouTube',
-    level: 'Beginner',
+    // level: 'Beginner',
     icon: Youtube,
     image: blog8,
     excerpt:
@@ -475,7 +477,7 @@ export const posts = [
     date: 'Sep 26, 2026',
     read: '9 min read',
     tag: 'Content Strategy',
-    level: 'Beginner',
+    // level: 'Beginner',
     icon: BookOpen,
     image: blog13,
     excerpt:
@@ -589,33 +591,38 @@ export default function Blog() {
       <div className="container-x">
 
         {/* HERO */}
-        <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-accent/10 via-white/[0.03] to-transparent p-7 sm:p-10 mb-8">
+        <div
+          className="relative isolate overflow-hidden rounded-3xl mb-8 p-7 sm:p-10 min-h-[300px] sm:min-h-[350px] flex items-center"
+          style={{
+            backgroundImage: `url(${learningBg})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
 
-          <div className="absolute -top-20 -right-20 w-64 h-64 bg-accent/10 blur-3xl rounded-full" />
+          }}
+        >
+          {/* Dark overlay for readable text */}
+          <div className="absolute inset-0 -z-10 bg-black/45" />
 
           <div className="relative max-w-3xl">
-
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent/10 border border-accent/20 text-accent-soft text-xs font-medium mb-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-md text-white text-xs font-medium mb-4">
               <Sparkles size={13} />
               NGanimationCr Learning Hub
             </div>
 
-            <h1 className="text-3xl sm:text-5xl font-bold leading-tight mb-4">
+            <h1 className="text-3xl sm:text-5xl font-bold leading-tight mb-4 text-white">
               Learn AI Video Creation
-              <span className="text-accent">
-                {' '}From Zero to Pro
+              <span className="block text-orange-300 mt-2">
+                From Zero to Pro
               </span>
             </h1>
 
-            <p className="text-white/55 leading-relaxed max-w-2xl">
+            <p className="text-white/90 leading-relaxed max-w-2xl">
               AI video creation, prompting, storytelling, editing,
               YouTube, Instagram, Facebook, thumbnails, hooks,
               content strategy and analytics — everything in one place.
             </p>
-
           </div>
         </div>
-
         {/* SEARCH */}
         <div className="relative max-w-lg mb-6">
 
@@ -644,10 +651,9 @@ export default function Blog() {
               className={`
                 px-4 py-2 rounded-full text-sm
                 border transition-all duration-300
-                ${
-                  activeTag === tag
-                    ? 'bg-accent border-accent text-white shadow-lg shadow-accent/20'
-                    : 'bg-white/[0.03] border-white/10 text-white/50 hover:text-white hover:border-accent/40 hover:bg-accent/10'
+                ${activeTag === tag
+                  ? 'bg-accent border-accent text-white shadow-lg shadow-accent/20'
+                  : 'bg-white/[0.03] border-white/10 text-white/50 hover:text-white hover:border-accent/40 hover:bg-accent/10'
                 }
               `}
             >
@@ -664,7 +670,7 @@ export default function Blog() {
             {filteredPosts.length} learning articles
           </p>
 
-          <span className="text-xs text-white/25">
+          <span className="text-xs sm:text-sm font-extrabold tracking-wide text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] hover:text-amber-300 transition-colors duration-300">
             Step-by-step practical guides
           </span>
 
@@ -689,29 +695,26 @@ export default function Blog() {
                   className="group card overflow-hidden border border-white/5 hover:border-accent/40 hover:-translate-y-1 hover:shadow-xl hover:shadow-accent/10 transition-all duration-300"
                 >
 
-                  {/* IMAGE */}
-                  <div className="relative h-44 overflow-hidden bg-white/5">
 
+                  {/* IMAGE — Full image visible on desktop & mobile */}
+                  <div className="relative w-full aspect-[4/3] overflow-hidden bg-[#111]">
                     <img
                       src={post.image}
                       alt={post.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                      className="w-full h-full object-contain"
+                      loading="lazy"
                     />
 
-                    {/* cinematic overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/15 to-transparent" />
-
-                    {/* LEVEL */}
+                    {/* Optional labels */}
                     <span className="absolute top-3 right-3 text-[11px] px-2.5 py-1 rounded-full bg-black/55 border border-white/10 text-white/80 backdrop-blur-md">
                       {post.level}
                     </span>
 
-                    {/* CATEGORY */}
-                    <span className="absolute bottom-3 left-4 text-xs font-medium text-white/90 bg-black/50 backdrop-blur-md border border-white/10 px-3 py-1.5 rounded-full">
+                    <span className="absolute bottom-3 left-3 text-xs font-medium text-white/90 bg-black/50 backdrop-blur-md border border-white/10 px-3 py-1.5 rounded-full">
                       {post.tag}
                     </span>
-
                   </div>
+
 
                   {/* CONTENT */}
                   <div className="p-5">
@@ -734,9 +737,9 @@ export default function Blog() {
                       {post.title}
                     </h2>
 
-                    <p className="text-white/45 text-sm leading-relaxed line-clamp-3 mb-5">
+                    {/* <p className="text-white/45 text-sm leading-relaxed line-clamp-3 mb-5">
                       {post.excerpt}
-                    </p>
+                    </p> */}
 
                     <div className="flex items-center justify-between">
 
@@ -781,18 +784,25 @@ export default function Blog() {
         )}
 
         {/* BOTTOM CTA */}
-        <div className="mt-10 card p-7 sm:p-9 text-center border-accent/20 bg-gradient-to-br from-accent/10 to-transparent">
-
+        <div
+        className="relative isolate overflow-hidden rounded-3xl mt-12 p-7 sm:p-9 text-center border-0"
+          style={{
+            backgroundImage: `linear-gradient(rgba(15,18,45,0.45), rgba(15,18,45,0.65)), url(${youWantLearn})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'top',
+            backgroundRepeat: 'no-repeat',
+          }}
+        >
           <Sparkles
             size={24}
             className="mx-auto mb-3 text-accent"
           />
 
-          <h2 className="text-2xl font-bold mb-2">
+          <h2 className="text-2xl font-bold mb-2 text-white">
             Want to Learn AI Video Creation?
           </h2>
 
-          <p className="text-white/45 text-sm max-w-xl mx-auto mb-5">
+          <p className="text-white/80 text-sm max-w-xl mx-auto mb-5">
             Learn AI video creation, prompting, storytelling,
             editing and content strategy step by step.
           </p>
@@ -804,7 +814,6 @@ export default function Blog() {
             Start Learning
             <ArrowRight size={15} />
           </NavLink>
-
         </div>
 
       </div>

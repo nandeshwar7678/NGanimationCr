@@ -1,6 +1,8 @@
 import { useEffect } from 'react'
 import { useParams, NavLink } from 'react-router-dom'
 import { posts } from './Blog.jsx'
+import blogCover from '../assets/blog/blogCoverD.jpg'
+import youWantLearn from '../assets/blog/youWantLearn.jpg'
 import {
   ArrowLeft,
   ArrowRight,
@@ -143,52 +145,58 @@ export default function BlogDetail() {
           <ArrowLeft size={15} />
           Back to Learning Hub
         </NavLink>
+        
+               {/* HERO WITH UNIVERSAL BACKGROUND IMAGE */}
+        <div className="relative isolate overflow-hidden rounded-3xl border border-white/10 mb-8 min-h-[320px] sm:min-h-[350px] bg-[#101225]">
 
-        {/* HERO */}
-        <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-accent/15 via-white/[0.03] to-transparent p-7 sm:p-10 mb-8">
+          {/* Background Image */}
+          <img
+            src={blogCover}
+            alt=""
+            aria-hidden="true"
+            className="absolute inset-0 -z-20 w-full h-full object-cover object-center"
+          />
 
-          <div className="absolute -right-24 -top-24 w-72 h-72 rounded-full bg-accent/10 blur-3xl" />
+          {/* Dark Overlay for Readability */}
+          <div className="absolute inset-0 -z-10 bg-gradient-to-r from-[#0b1020]/95 via-[#0b1020]/75 to-[#0b1020]/25" />
 
-          <div className="relative">
+          {/* Purple Glow */}
+          <div className="absolute -right-24 -top-24 -z-10 w-72 h-72 rounded-full bg-accent/20 blur-3xl" />
+
+          {/* Hero Content */}
+          <div className="relative p-6 sm:p-10">
 
             <div className="flex flex-wrap items-center gap-2 mb-5">
-
-              <span className="inline-flex items-center gap-1.5 text-xs text-accent-soft bg-accent/10 border border-accent/20 px-3 py-1.5 rounded-full">
+              <span className="inline-flex items-center gap-1.5 text-xs text-accent-soft bg-accent/10 border border-accent/20 px-3 py-1.5 rounded-full backdrop-blur-md">
                 <Sparkles size={12} />
                 {post.tag}
               </span>
 
-              <span className="text-xs text-white/35">
+              <span className="text-xs text-white/70">
                 {post.level}
               </span>
-
             </div>
 
-            <h1 className="text-3xl sm:text-5xl font-bold leading-tight mb-5">
+            <h1 className="text-3xl sm:text-5xl font-bold leading-tight mb-5 text-white">
               {post.title}
             </h1>
 
-            <p className="text-white/50 leading-relaxed max-w-3xl mb-5">
+            <p className="text-white/75 leading-relaxed max-w-3xl mb-5">
               {post.excerpt}
             </p>
 
-            <div className="flex flex-wrap items-center gap-4 text-white/35 text-sm">
+            <div className="flex flex-wrap items-center gap-4 text-white/70 text-sm">
+              <span>{post.date}</span>
 
-              <span>
-                {post.date}
-              </span>
-
-              <span className="w-1 h-1 rounded-full bg-white/20" />
+              <span className="w-1 h-1 rounded-full bg-white/50" />
 
               <span className="inline-flex items-center gap-1">
                 <Clock size={14} />
                 {post.read}
               </span>
-
             </div>
 
           </div>
-
         </div>
 
         {/* LEARNING OBJECTIVE */}
@@ -377,36 +385,44 @@ export default function BlogDetail() {
         )}
 
         {/* CTA */}
-        <div className="card mt-12 p-7 sm:p-9 text-center border-accent/20 bg-gradient-to-br from-accent/15 to-transparent">
+        <div
+className="relative isolate overflow-hidden rounded-3xl mt-12 p-7 sm:p-9 text-center border-0"
+  style={{
+    backgroundImage: `linear-gradient(rgba(15,18,45,0.45), rgba(15,18,45,0.70)), url(${youWantLearn})`,
+    backgroundSize: 'cover',
+    backgroundPosition: 'top',
+    backgroundRepeat: 'no-repeat',
+  }}
+>
+  <div className="relative z-10">
 
-          <div className="w-11 h-11 mx-auto mb-4 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center">
+    <div className="w-11 h-11 mx-auto mb-4 rounded-xl bg-accent/20 border border-accent/30 flex items-center justify-center">
+      <Sparkles
+        size={20}
+        className="text-accent"
+      />
+    </div>
 
-            <Sparkles
-              size={20}
-              className="text-accent"
-            />
+    <h2 className="text-2xl font-bold mb-2 text-white">
+      AI Video Creation Seekhna Hai?
+    </h2>
 
-          </div>
+    <p className="text-white/80 max-w-xl mx-auto mb-6">
+      AI video creation, prompting, storytelling,
+      image-to-video, editing aur content strategy
+      ko step-by-step seekhiye.
+    </p>
 
-          <h2 className="text-2xl font-bold mb-2">
-            AI Video Creation Seekhna Hai?
-          </h2>
+    <NavLink
+      to="/contact"
+      className="btn-primary inline-flex items-center gap-2"
+    >
+      Start Learning
+      <ArrowRight size={16} />
+    </NavLink>
 
-          <p className="text-white/45 max-w-xl mx-auto mb-6">
-            AI video creation, prompting, storytelling,
-            image-to-video, editing aur content strategy
-            ko step-by-step seekhiye.
-          </p>
-
-          <NavLink
-            to="/contact"
-            className="btn-primary inline-flex items-center gap-2"
-          >
-            Start Learning
-            <ArrowRight size={16} />
-          </NavLink>
-
-        </div>
+  </div>
+</div>
 
       </article>
     </div>

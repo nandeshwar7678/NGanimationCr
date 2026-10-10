@@ -4,7 +4,7 @@ const particles = Array.from({ length: 45 }, (_, i) => ({
   id: i,
   left: `${(i * 47) % 100}%`,
   top: `${(i * 67) % 100}%`,
-  size: i % 5 === 0 ? 3 : i % 2 === 0 ? 2 : 1.5,
+  size: i % 5 === 0 ? 3 : i % 2 === 0 ? 2 : 2.5,
   duration: 9 + (i % 8),
   delay: (i % 10) * 0.7,
 }))

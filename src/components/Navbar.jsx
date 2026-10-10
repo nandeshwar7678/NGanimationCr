@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import { Menu, X, Sparkles } from 'lucide-react'
 import logo from '../assets/logo.png'
+import InteractiveBrandText from './InteractiveBrandText'
 
 const links = [
   { to: '/', label: 'Home' },
@@ -22,8 +23,11 @@ export default function Navbar() {
       <div className="container-x flex items-center justify-between h-16">
         <NavLink to="/" className="flex items-center gap-2 font-display font-bold text-lg">
           <img src={logo} alt="NGanimationCr logo" className="h-8 w-8 object-contain" />
-          NGanimationCr
+          <a href="/" className="your-existing-navbar-logo-classes">
+  <InteractiveBrandText />
+</a>
         </NavLink>
+        
 
         <nav className="hidden lg:flex items-center gap-7 text-sm text-white/70">
           {links.map((l) => (
@@ -46,7 +50,7 @@ export default function Navbar() {
   to="/contact?type=payment"
   className="btn-primary payment-desktop-only"
 >
-  Payment Form
+  Form
 </NavLink>
 
         <button className="lg:hidden text-white" onClick={() => setOpen(!open)} aria-label="Toggle menu">

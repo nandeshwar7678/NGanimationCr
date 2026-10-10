@@ -1,5 +1,7 @@
 
 import { motion } from 'framer-motion'
+import { useState } from 'react'
+import InteractiveBrandText from '../components/InteractiveBrandText'
 import {
   ArrowRight,
   Sparkles,
@@ -81,7 +83,11 @@ const fadeUp = {
 }
 
 export default function Home() {
+  
+const [mouse, setMouse] = useState({ x: -500, y: -500 })
+const [isHovering, setIsHovering] = useState(false)
   return (
+    
     <main className="min-h-screen overflow-hidden bg-[#070711] text-white">
 
       {/* FULL-WIDTH CINEMATIC HERO */}
@@ -315,6 +321,16 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+ 
+
+
+<section className="w-full overflow-hidden bg-black py-3 sm:py-5">
+  <h2 className="w-full text-center text-[12vw] font-black leading-none">
+    <InteractiveBrandText />
+  </h2>
+</section>
+
 
       {/* FOOTER */}
       <footer className="border-t border-white/[0.08] px-5 py-7 sm:px-8 lg:px-16">

@@ -1,4 +1,6 @@
 import { NavLink } from 'react-router-dom'
+import InteractiveBrandText from '../components/InteractiveBrandText'
+
 import {
   Mail,
   Phone,
@@ -22,7 +24,7 @@ export default function Footer() {
         <div>
           <NavLink to="/" className="flex items-center gap-2 font-display font-bold text-lg">
             <img src={logo} alt="NGanimationCr logo" className="h-8 w-8 object-contain" />
-            NGanimationCr
+            <InteractiveBrandText />
           </NavLink>
           <p className="text-white/50 text-sm leading-relaxed">
             Creating stories with AI — engaging videos and creative content for brands and dreamers.
