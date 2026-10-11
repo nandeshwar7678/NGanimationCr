@@ -6,7 +6,7 @@ import brandedS from "../assets/brandad.jpg"
 import instagramS from "../assets/instareel.jpg"
 import youtubeconstentS from "../assets/YouTube.jpg"
 import storytellingS from "../assets/storytelling.jpg"
-import thinkingBoy from '../assets/thinkingboy.png'
+import thinkingBoy from '../assets/thinkingBoy.png'
 
 const services = [
   {
