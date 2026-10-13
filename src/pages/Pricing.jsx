@@ -1,425 +1,263 @@
+
 import { NavLink } from 'react-router-dom'
-import { Check, Sparkles, ArrowRight } from 'lucide-react'
+import {
+  Check,
+  Sparkles,
+  ArrowRight,
+  Crown,
+  Zap,
+  Clapperboard,
+  ShieldCheck,
+} from 'lucide-react'
 
 const plans = [
   {
     name: 'Basic',
     price: '₹2,500',
-    desc: 'Perfect for small projects.',
+    desc: 'Perfect for a single creative project.',
+    icon: Zap,
     features: [
       '1 Video (up to 50 sec)',
-      'Basic Editing',
-      'HD Output',
-      '1 Revision',
+      'Professional Basic Editing',
+      'HD Video Output',
+      '1 Revision Included',
     ],
   },
   {
     name: 'Standard',
     price: '₹10,000',
-    desc: 'Most popular choice.',
+    desc: 'Our recommended creative package.',
+    icon: Sparkles,
     popular: true,
     features: [
-      '5 Videos (up to 1 min)',
-      'Advanced Editing',
+      '5 Videos (up to 1 min each)',
+      'Advanced Video Editing',
       'HD + 4K Output',
-      '3 Revisions',
+      '3 Revisions Included',
     ],
   },
   {
     name: 'Premium',
     price: '₹25,000',
-    desc: 'For brands & businesses.',
+    desc: 'Premium creativity for growing brands.',
+    icon: Crown,
     features: [
-      '5+ Videos (up to 2 min)',
-      'Full Animation',
-      '4K + Pro Quality',
-      'Unlimited Revisions',
+      '5+ Videos (up to 2 min each)',
+      'Full Animation & Storytelling',
+      '4K Professional Output',
+      'Revision Terms on Agreement',
     ],
   },
 ]
 
 export default function Pricing() {
   return (
-    <div className="py-10 sm:py-12">
-      <div className="container-x">
+    <section className="relative isolate overflow-hidden py-3 sm:py-4 lg:py-5">
+      {/* BACKGROUND */}
+      <div className="pointer-events-none absolute inset-0 -z-10">
+        <div className="absolute inset-0 bg-gradient-to-b from-[#100c20] via-[#09090f] to-[#09090f]" />
 
-        {/* ================= HEADER ================= */}
-        <div className="text-center mb-8">
+        <div className="absolute -top-32 left-1/2 h-64 w-[520px] max-w-full -translate-x-1/2 rounded-full bg-violet-600/15 blur-[100px]" />
 
-          <div
-            className="
-              inline-flex items-center gap-2
-              text-xs text-accent
-              bg-accent/10
-              border border-accent/20
-              px-3 py-1.5
-              rounded-full
-              mb-3
-            "
-          >
+        <div className="absolute left-0 top-1/3 h-48 w-48 rounded-full bg-indigo-600/[0.07] blur-[85px]" />
+
+        <div className="absolute bottom-0 right-0 h-48 w-48 rounded-full bg-fuchsia-600/[0.06] blur-[85px]" />
+
+        <div
+          className="absolute inset-0 opacity-[0.025]"
+          style={{
+            backgroundImage:
+              'linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)',
+            backgroundSize: '40px 40px',
+          }}
+        />
+      </div>
+
+      <div className="container-x relative">
+        {/* HEADER */}
+        <header className="mx-auto mb-5 max-w-3xl text-center sm:mb-6">
+          {/* <div className="mb-2.5 inline-flex items-center gap-2 rounded-full border border-violet-400/20 bg-violet-400/[0.08] px-3 py-1.5 text-[10px] font-semibold tracking-wider text-violet-200 sm:text-[11px]">
             <Sparkles size={13} />
-            Simple & Transparent Pricing
-          </div>
+            PREMIUM CREATIVE SOLUTIONS
+          </div> */}
 
-          <h1 className="text-3xl sm:text-4xl font-bold mb-2">
-            Choose Your{' '}
-            <span className="text-accent">
-              Creative Package
+          <h1 className="text-3xl font-bold leading-[1.05] tracking-tight text-white sm:text-4xl lg:text-[44px]">
+            Invest in Your
+            <span className="block bg-gradient-to-r from-violet-300 via-fuchsia-300 to-indigo-300 bg-clip-text pb-1 text-transparent">
+              Creative Vision.
             </span>
           </h1>
 
-          <p className="text-white/50 text-sm max-w-xl mx-auto">
-            Professional AI animation, video creation and creative
-            content packages designed to bring your ideas to life.
+          <p className="mx-auto mt-2 max-w-xl text-xs leading-5 text-white/50 sm:text-sm">
+            Professional AI video ads, animation and creative content
+            packages designed to bring your brand story to life.
           </p>
 
-        </div>
+          <div className="mt-3 flex flex-wrap items-center justify-center gap-x-5 gap-y-1.5 text-[10px] text-white/55 sm:gap-x-6 sm:text-xs">
+            <span className="inline-flex items-center gap-1.5">
+              <ShieldCheck size={13} className="text-violet-300" />
+              Professional Quality
+            </span>
 
+            <span className="inline-flex items-center gap-1.5">
+              <Clapperboard size={13} className="text-violet-300" />
+              Creative Storytelling
+            </span>
 
-        {/* ================= PRICING CARDS ================= */}
-        <div className="grid md:grid-cols-3 gap-5 mb-8">
+            <span className="inline-flex items-center gap-1.5">
+              <Check size={13} className="text-violet-300" />
+              Clear Package Pricing
+            </span>
+          </div>
+        </header>
 
-          {plans.map((p) => (
+        {/* PRICING CARDS */}
+        <div className="grid items-stretch gap-4 md:grid-cols-3 lg:gap-5">
+          {plans.map((p) => {
+            const Icon = p.icon
 
-            <div
-              key={p.name}
-              className={`
-                group
-                relative
-                card
-                p-6
-                flex
-                flex-col
-                transition-all
-                duration-300
-                ease-out
-
-                hover:-translate-y-2
-                hover:scale-[1.015]
-                hover:border-accent/50
-                hover:shadow-[0_15px_45px_rgba(109,93,246,0.20)]
-
-                ${
+            return (
+              <article
+                key={p.name}
+                className={`group relative flex flex-col overflow-hidden rounded-2xl border p-4 transition-all duration-300 sm:p-5 ${
                   p.popular
-                    ? `
-                      border-accent/60
-                      shadow-[0_10px_35px_rgba(109,93,246,0.12)]
-                    `
-                    : 'border-white/5'
-                }
-              `}
-            >
+                    ? 'border-violet-400/60 bg-gradient-to-b from-violet-500/[0.15] via-[#171322] to-[#100f18] shadow-[0_0_35px_rgba(139,92,246,0.12)]'
+                    : 'border-white/[0.09] bg-white/[0.025] hover:-translate-y-1 hover:border-violet-400/40 hover:bg-white/[0.045] hover:shadow-[0_15px_40px_rgba(109,93,246,0.12)]'
+                }`}
+              >
+                {/* CARD GLOW */}
+                <div className="pointer-events-none absolute -right-16 -top-16 h-36 w-36 rounded-full bg-violet-500/10 opacity-0 blur-[60px] transition-opacity duration-300 group-hover:opacity-100" />
 
-              {/* Hover Glow */}
-              <div
-                className="
-                  pointer-events-none
-                  absolute
-                  inset-0
-                  rounded-2xl
-                  opacity-0
-                  group-hover:opacity-100
-                  transition-opacity
-                  duration-300
-                  bg-gradient-to-b
-                  from-accent/[0.08]
-                  via-transparent
-                  to-transparent
-                "
-              />
+                {p.popular && (
+                  <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-violet-300 to-transparent" />
+                )}
 
-
-              {/* Popular Badge */}
-              {p.popular && (
-                <span
-                  className="
-                    absolute
-                    top-4
-                    right-4
-                    text-[11px]
-                    font-medium
-                    bg-accent
-                    text-white
-                    px-3
-                    py-1
-                    rounded-full
-                    shadow-[0_5px_20px_rgba(109,93,246,0.35)]
-                  "
-                >
-                  Most Popular
-                </span>
-              )}
-
-
-              {/* Content */}
-              <div className="relative z-10">
-
-                {/* Plan Name */}
-                <h3
-                  className="
-                    font-semibold
-                    text-lg
-                    mb-1
-                    transition-colors
-                    duration-300
-                    group-hover:text-accent
-                  "
-                >
-                  {p.name}
-                </h3>
-
-                <p className="text-white/40 text-xs mb-4">
-                  {p.desc}
-                </p>
-
-
-                {/* Price */}
-                <div className="flex items-baseline gap-2 mb-5">
-
-                  <span
-                    className="
-                      text-3xl
-                      font-bold
-                      transition-transform
-                      duration-300
-                      group-hover:translate-x-1
-                    "
-                  >
-                    {p.price}
-                  </span>
-
-                  <span className="text-xs text-white/35">
-                    / package
-                  </span>
-
-                </div>
-
-
-                {/* Divider */}
-                <div className="border-t border-white/10 mb-5" />
-
-
-                {/* Features */}
-                <ul className="space-y-3 mb-6 flex-1">
-
-                  {p.features.map((f) => (
-
-                    <li
-                      key={f}
-                      className="
-                        flex
-                        items-center
-                        gap-2
-                        text-sm
-                        text-white/60
-                        transition-all
-                        duration-300
-                        group-hover:text-white/80
-                      "
-                    >
-
-                      <span
-                        className="
-                          flex
-                          items-center
-                          justify-center
-                          w-5
-                          h-5
-                          rounded-full
-                          bg-accent/10
-                          transition-all
-                          duration-300
-                          group-hover:bg-accent/20
-                          group-hover:scale-110
-                        "
+                <div className="relative flex flex-1 flex-col">
+                  {/* PLAN NAME */}
+                  <div className="mb-3 flex items-start justify-between gap-2">
+                    <div>
+                      <div
+                        className={`mb-2.5 flex h-10 w-10 items-center justify-center rounded-xl border transition-transform duration-300 group-hover:scale-110 ${
+                          p.popular
+                            ? 'border-violet-300/30 bg-violet-400/15 text-violet-200'
+                            : 'border-white/10 bg-white/[0.05] text-white/75'
+                        }`}
                       >
-                        <Check
-                          size={12}
-                          className="text-accent"
-                        />
+                        <Icon size={20} />
+                      </div>
+
+                      <h2 className="text-lg font-semibold text-white transition-colors group-hover:text-violet-200 sm:text-xl">
+                        {p.name}
+                      </h2>
+
+                      <p className="mt-1 text-xs leading-5 text-white/45">
+                        {p.desc}
+                      </p>
+                    </div>
+
+                    {p.popular && (
+                      <span className="mt-1 shrink-0 rounded-full border border-violet-300/25 bg-violet-300/10 px-2.5 py-1 text-[9px] font-semibold uppercase tracking-wider text-violet-200 sm:text-[10px]">
+                        Popular
+                      </span>
+                    )}
+                  </div>
+
+                  {/* PRICE */}
+                  <div className="mb-3">
+                    <div className="flex flex-wrap items-baseline gap-2">
+                      <span className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
+                        {p.price}
                       </span>
 
-                      {f}
+                      <span className="text-[11px] text-white/35">
+                        / package
+                      </span>
+                    </div>
+                  </div>
 
-                    </li>
+                  <div className="mb-3 h-px bg-gradient-to-r from-white/15 via-white/[0.06] to-transparent" />
 
-                  ))}
+                  {/* FEATURES */}
+                  <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/40">
+                    What's included
+                  </p>
 
-                </ul>
+                  <ul className="mb-4 flex-1 space-y-2.5">
+                    {p.features.map((feature) => (
+                      <li
+                        key={feature}
+                        className="flex items-start gap-2.5 text-xs leading-5 text-white/65 transition-colors group-hover:text-white/85 sm:text-[13px]"
+                      >
+                        <span className="mt-0.5 flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full bg-violet-400/10 text-violet-300">
+                          <Check size={11} strokeWidth={2.5} />
+                        </span>
 
+                        <span>{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
 
-                {/* Button */}
-                <NavLink
-                  to="/contact"
-                  className={`
-                    group/btn
-                    w-full
-                    justify-center
-                    transition-all
-                    duration-300
-
-                    ${
+                  {/* BUTTON */}
+                  <NavLink
+                    to={`/contact?type=${encodeURIComponent(
+                      p.name.toLowerCase()
+                    )}`}
+                    className={`flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-xs font-semibold transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 sm:text-sm ${
                       p.popular
-                        ? 'btn-primary'
-                        : 'btn-outline'
-                    }
-                  `}
-                >
+                        ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-[0_6px_20px_rgba(109,93,246,0.22)] hover:brightness-110 hover:shadow-[0_8px_25px_rgba(109,93,246,0.35)]'
+                        : 'border border-white/10 bg-white/[0.04] text-white hover:border-violet-400/40 hover:bg-violet-500/10'
+                    }`}
+                  >
+                    Choose {p.name}
 
-                  Get Started
+                    <ArrowRight
+                      size={15}
+                      className="transition-transform duration-300 group-hover:translate-x-1"
+                    />
+                  </NavLink>
+                </div>
+              </article>
+            )
+          })}
+        </div>
 
-                  <ArrowRight
-                    size={15}
-                    className="
-                      transition-transform
-                      duration-300
-                      group-hover/btn:translate-x-1
-                    "
-                  />
+        {/* CUSTOM PACKAGE - BELOW PRICING */}
+        <div className="group relative mt-6 overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-r from-[#171323] via-[#12111b] to-[#171020] p-5 sm:mt-8 sm:p-6">
+          <div className="pointer-events-none absolute -right-12 -top-20 h-48 w-48 rounded-full bg-violet-500/10 blur-[70px] transition-colors group-hover:bg-violet-500/20" />
 
-                </NavLink>
-
+          <div className="relative flex flex-col items-center justify-between gap-4 text-center md:flex-row md:text-left">
+            <div className="flex flex-col items-center gap-3 sm:flex-row md:items-center">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-violet-300/20 bg-violet-400/10 text-violet-200">
+                <Sparkles size={20} />
               </div>
 
+              <div>
+                <h2 className="text-lg font-bold text-white sm:text-xl">
+                  Need a Custom Package?
+                </h2>
+
+                <p className="mt-1 max-w-xl text-xs leading-5 text-white/50 sm:text-sm">
+                  Tell us your vision. We'll create a package tailored
+                  to your brand, campaign and creative goals.
+                </p>
+              </div>
             </div>
 
-          ))}
-
-        </div>
-
-
-        {/* ================= CUSTOM PACKAGE ================= */}
-        <div
-          className="
-            group
-            relative
-            card
-            px-6
-            py-7
-            text-center
-            overflow-hidden
-
-            transition-all
-            duration-300
-
-            hover:-translate-y-1
-            hover:border-accent/40
-            hover:shadow-[0_15px_40px_rgba(109,93,246,0.15)]
-          "
-        >
-
-          {/* Background Glow */}
-          <div
-            className="
-              absolute
-              -top-20
-              left-1/2
-              -translate-x-1/2
-              w-64
-              h-32
-              bg-accent/10
-              blur-3xl
-              rounded-full
-              opacity-0
-              group-hover:opacity-100
-              transition-opacity
-              duration-500
-            "
-          />
-
-
-          {/* Icon */}
-          <div
-            className="
-              relative
-              w-10
-              h-10
-              mx-auto
-              mb-3
-              rounded-xl
-              bg-accent/10
-              border
-              border-accent/20
-              flex
-              items-center
-              justify-center
-
-              transition-all
-              duration-300
-
-              group-hover:bg-accent/20
-              group-hover:border-accent/40
-              group-hover:scale-110
-              group-hover:rotate-3
-            "
-          >
-
-            <Sparkles
-              size={18}
-              className="text-accent"
-            />
-
+            <NavLink
+              to="/contact?type=custom"
+              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-xs font-semibold text-[#111018] transition-all duration-300 hover:-translate-y-0.5 hover:bg-violet-100 hover:shadow-[0_8px_25px_rgba(139,92,246,0.2)] sm:text-sm"
+            >
+              Get a Custom Quote
+              <ArrowRight size={15} />
+            </NavLink>
           </div>
-
-
-          <h3
-            className="
-              relative
-              text-xl
-              font-semibold
-              text-white
-              mb-2
-              transition-colors
-              duration-300
-              group-hover:text-accent
-            "
-          >
-            Need a Custom Package?
-          </h3>
-
-
-          <p className="relative text-white/50 text-sm mb-4">
-            Have a unique project in mind? Let's create a
-            personalized package for your requirements.
-          </p>
-
-
-          <NavLink
-            to="/contact"
-            className="
-              relative
-              btn-primary
-              inline-flex
-              transition-all
-              duration-300
-
-              hover:scale-105
-              hover:shadow-[0_8px_25px_rgba(109,93,246,0.35)]
-            "
-          >
-
-            Contact Me
-
-            <ArrowRight
-              size={15}
-              className="
-                transition-transform
-                duration-300
-                group-hover:translate-x-1
-              "
-            />
-
-          </NavLink>
-
         </div>
 
-
-        {/* Small Bottom Text */}
-        <p className="text-center text-xs text-white/30 mt-5">
-          ✦ Custom requirements? Let's discuss your project.
+        {/* FOOTER */}
+        <p className="mt-4 text-center text-[10px] text-white/80 sm:text-xs">
+          ✦ Every brand has a story. Let's tell yours with NGanimationCr.
         </p>
-
       </div>
-    </div>
+    </section>
   )
 }

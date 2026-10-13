@@ -83,26 +83,28 @@ const fadeUp = {
 }
 
 export default function Home() {
-  
-const [mouse, setMouse] = useState({ x: -500, y: -500 })
-const [isHovering, setIsHovering] = useState(false)
+
+  const [mouse, setMouse] = useState({ x: -500, y: -500 })
+  const [isHovering, setIsHovering] = useState(false)
   return (
-    
+
     <main className="min-h-screen overflow-hidden bg-[#070711] text-white">
 
       {/* FULL-WIDTH CINEMATIC HERO */}
       <section className="relative flex min-h-[78vh] items-center overflow-hidden bg-[#070711] sm:min-h-[88vh] lg:min-h-screen">
 
+
         <img
           src={showcaseImg}
           alt="NGanimationCr creative AI video production"
-       className="absolute inset-0 h-full w-full object-cover object-center lg:object-[50%_center]"
+          className="absolute inset-0 h-full w-full scale-[1.02] object-cover object-center brightness-110 contrast-110 saturate-110 lg:object-[50%_center]"
           fetchPriority="high"
         />
 
-        {/* Faded cinematic overlays */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#070711]/90 via-[#070711]/55 to-[#070711]/10" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#070711] via-[#070711]/10 to-[#070711]/25" />
+        {/* Cinematic overlays */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#070711]/75 via-[#070711]/35 to-[#070711]/5" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#070711]/90 via-[#070711]/5 to-transparent" />
+
 
         <div className="relative z-10 mx-auto flex w-full max-w-7xl items-center px-6 py-28 sm:px-10 lg:px-16">
           <motion.div
@@ -117,9 +119,11 @@ const [isHovering, setIsHovering] = useState(false)
 
             <h1 className="text-5xl font-black leading-[1.08] tracking-tight text-white/95 sm:text-7xl lg:text-8xl">
               Ideas Into
-              <span className="block bg-gradient-to-r from-white via-violet-200 to-blue-300 bg-clip-text text-transparent">
+
+              <span className="block w-fit bg-gradient-to-r from-sky-300 via-blue-400 via-violet-400 to-pink-400 bg-clip-text text-transparent drop-shadow-[0_0_22px_rgba(139,92,246,0.25)]">
                 Extraordinary
               </span>
+
               <span className="block text-white/65">
                 Visual Stories.
               </span>
@@ -163,7 +167,7 @@ const [isHovering, setIsHovering] = useState(false)
       </section>
 
       {/* CREATIVE STRIP */}
-      <section className="border-y border-white/[0.07] bg-white/[0.025] px-5 py-7 sm:px-8 lg:px-16">
+      {/* <section className="border-y border-white/[0.07] bg-white/[0.025] px-5 py-7 sm:px-8 lg:px-16">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-10 gap-y-5 text-center text-sm font-medium text-gray-300 sm:justify-between">
           <span className="flex items-center gap-2">
             <Sparkles size={17} className="text-violet-400" />
@@ -185,10 +189,10 @@ const [isHovering, setIsHovering] = useState(false)
             Creative Solutions
           </span>
         </div>
-      </section>
+      </section> */}
 
       {/* SERVICES */}
-     <section className="px-5 pt-16 pb-0 sm:px-8 sm:pt-20 lg:px-16 lg:pt-24">
+      <section className="px-5 pt-5 pb-0 sm:px-8 sm:pt-20 lg:px-16 lg:pt-0">
         <div className="mx-auto max-w-7xl">
           <motion.div
             initial="hidden"
@@ -272,7 +276,7 @@ const [isHovering, setIsHovering] = useState(false)
         </div>
       </section>
 
-     
+
 
       {/* HOW IT WORKS */}
       <section className="px-5 pt-16 pb-8 sm:px-8 lg:px-16">
@@ -322,14 +326,14 @@ const [isHovering, setIsHovering] = useState(false)
         </div>
       </section>
 
- 
 
 
-<section className="w-full overflow-hidden bg-black py-3 sm:py-5">
+
+      {/* <section className="w-full overflow-hidden bg-black py-3 sm:py-5">
   <h2 className="w-full text-center text-[12vw] font-black leading-none">
     <InteractiveBrandText />
   </h2>
-</section>
+</section> */}
 
 
       {/* FOOTER */}

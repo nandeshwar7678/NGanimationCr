@@ -587,24 +587,24 @@ export default function Blog() {
   })
 
   return (
-    <div className="py-8 sm:py-10">
+    <div className="py-4 sm:py-5">
       <div className="container-x">
 
         {/* HERO */}
         <div
-          className="relative isolate overflow-hidden rounded-3xl mb-8 p-7 sm:p-10 min-h-[200px] sm:min-h-[350px] flex items-center"
+          className="relative isolate overflow-hidden rounded-3xl mb-4 p-3 sm:p-5 min-h-[250px] sm:min-h-[250px] flex items-center"
           style={{
             backgroundImage: `url(${learningBg})`,
             backgroundSize: 'cover',
-            backgroundPosition: '60% center',
+            backgroundPosition: '60% 20%',
 
           }}
         >
           {/* Dark overlay for readable text */}
-          <div className="absolute inset-0 -z-10 bg-black/45" />
+          <div className="absolute inset-0 -z-10 bg-black/05" />
 
           <div className="relative max-w-3xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-md text-white text-xs font-medium mb-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-md text-white text-xs font-medium mb-1">
               <Sparkles size={13} />
               NGanimationCr Learning Hub
             </div>
@@ -785,7 +785,7 @@ export default function Blog() {
 
         {/* BOTTOM CTA */}
         <div
-        className="relative isolate overflow-hidden rounded-3xl mt-12 p-7 sm:p-9 text-center border-0"
+          className="relative isolate overflow-hidden rounded-3xl mt-12 p-7 sm:p-9 text-center border-0"
           style={{
             backgroundImage: `linear-gradient(rgba(15,18,45,0.45), rgba(15,18,45,0.65)), url(${youWantLearn})`,
             backgroundSize: 'cover',

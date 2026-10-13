@@ -147,7 +147,7 @@ export default function BlogDetail() {
         </NavLink>
 
         {/* HERO WITH UNIVERSAL BACKGROUND IMAGE */}
-        <div className="relative isolate overflow-hidden rounded-3xl border border-white/10 mb-8 min-h-[320px] sm:min-h-[350px] bg-[#101225]">
+        <div className="relative isolate overflow-hidden rounded-3xl border border-white/10 mb-7 min-h-[320px] sm:min-h-[150px] bg-[#101225]">
 
           {/* Background Image */}
           <img
@@ -200,7 +200,7 @@ export default function BlogDetail() {
         </div>
 
         {/* LEARNING OBJECTIVE */}
-        <div className="card p-5 sm:p-6 mb-9 border-accent/20 bg-accent/[0.04]">
+        <div className="card p-2 sm:p-3 mb-9 border-accent/20 bg-accent/[0.04]">
 
           <div className="flex items-start gap-3">
 
@@ -426,14 +426,14 @@ export default function BlogDetail() {
         >
           <div className="relative z-10">
 
-            <div className="w-11 h-11 mx-auto mb-4 rounded-xl bg-accent/20 border border-accent/30 flex items-center justify-center">
+            {/* <div className="w-11 h-11 mx-auto mb-4 rounded-xl bg-accent/20 border border-accent/30 flex items-center justify-center">
               <Sparkles
                 size={20}
                 className="text-accent"
               />
-            </div>
+            </div> */}
 
-            <h2 className="text-2xl font-bold mb-2 text-white">
+            <h2 className="text-2xl font-bold text-white">
               AI Video Creation Seekhna Hai?
             </h2>
 
