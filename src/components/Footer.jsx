@@ -98,7 +98,7 @@ export default function Footer() {
   }
 
   return (
-    <footer className="relative mt-10 overflow-hidden border-t border-white/10 bg-[#080811] text-white">
+    <footer className="relative mt-0 overflow-hidden border-t border-white/10 bg-[#080811] text-white">
       {/* Subtle background glow */}
       <div
         aria-hidden="true"

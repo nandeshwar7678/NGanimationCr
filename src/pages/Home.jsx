@@ -167,7 +167,7 @@ export default function Home() {
       </section>
 
       {/* CREATIVE STRIP */}
-      {/* <section className="border-y border-white/[0.07] bg-white/[0.025] px-5 py-7 sm:px-8 lg:px-16">
+      <section className="border-y border-white/[0.07] bg-white/[0.025] px-5 py-7 sm:px-8 lg:px-16">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-10 gap-y-5 text-center text-sm font-medium text-gray-300 sm:justify-between">
           <span className="flex items-center gap-2">
             <Sparkles size={17} className="text-violet-400" />
@@ -189,10 +189,10 @@ export default function Home() {
             Creative Solutions
           </span>
         </div>
-      </section> */}
+      </section>
 
       {/* SERVICES */}
-      <section className="px-5 pt-5 pb-0 sm:px-8 sm:pt-20 lg:px-16 lg:pt-0">
+      <section className="px-5 pt-5 pb-0 sm:px-8 sm:pt-20 lg:px-16 lg:pt-10">
         <div className="mx-auto max-w-7xl">
           <motion.div
             initial="hidden"
@@ -279,9 +279,9 @@ export default function Home() {
 
 
       {/* HOW IT WORKS */}
-      <section className="px-5 pt-16 pb-8 sm:px-8 lg:px-16">
+      <section className="px-5 pt-14 pb-4 sm:px-4 lg:px-16">
         <div className="mx-auto max-w-7xl">
-          <div className="mx-auto mb-14 max-w-2xl text-center">
+          <div className="mx-auto mb-12 max-w-2xl text-center">
             <p className="text-sm font-bold uppercase tracking-[0.3em] text-violet-400">
               How It Works
             </p>
