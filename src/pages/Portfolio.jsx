@@ -11,6 +11,8 @@ import {
 import ad1 from '../assets/videos/ad1.mp4'
 import ad2 from '../assets/videos/ad2.mp4'
 import ad3 from '../assets/videos/ad3.mp4'
+import ad4 from '../assets/videos/ad4.mp4'
+import ad5 from '../assets/videos/ad5.mp4'
 import YouTubeShorts from '../assets/videos/YouTubeShorts.mp4'
 import NatureReel from '../assets/videos/NatureReel.mp4'
 
@@ -36,25 +38,37 @@ const projects = [
     meta: 'Short-Form Content',
   },
   {
-    id: 'brand-ad-1',
-    title: 'Brand Advertisement',
+    id: 'Ads-1',
+    title: 'Product Advertisement',
     video: ad1,
     tag: 'Advertisement',
     meta: '990K views · 1 month ago',
   },
   {
-    id: 'product-ad-2',
-    title: 'Product Advertisement',
+    id: 'Ads-2',
+    title: 'Brand Advertisement',
     video: ad2,
     tag: 'Advertisement',
     meta: 'Product Showcase',
   },
   {
-    id: 'product-ad-3',
-    title: 'Product Ad 2',
+    id: 'Ads-3',
+    title: 'Product Advertisement',
     video: ad3,
     tag: 'Advertisement',
     meta: '440K views · 1 week ago',
+  },{
+    id: 'Ads-4',
+    title: 'Brand Advertisement',
+    video: ad4,
+    tag: 'Advertisement',
+    meta: '340K views · 6 week ago',
+  },{
+    id: 'Ads-5',
+    title: 'Brand Advertisement',
+    video: ad5,
+    tag: 'Advertisement',
+    meta: '740K views · 1 month ago',
   },
 ]
 
@@ -185,9 +199,9 @@ export default function Portfolio() {
                   </p>
                 </div>
 
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-slate-300">
+                {/* <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-slate-300">
                   <ArrowUpRight size={15} />
-                </span>
+                </span> */}
               </div>
             </article>
           ))}

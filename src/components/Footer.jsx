@@ -1,5 +1,5 @@
 
-import { NavLink } from 'react-router-dom'
+import { NavLink, useLocation } from 'react-router-dom'
 import InteractiveBrandText from '../components/InteractiveBrandText'
 import {
   Mail,
@@ -77,7 +77,7 @@ const socialLinks = [
 
 export default function Footer() {
   const year = new Date().getFullYear()
-
+  const { pathname } = useLocation()
   const handleServiceClick = (slug) => {
     if (window.location.pathname === '/services') {
       const currentService = new URLSearchParams(
@@ -107,36 +107,39 @@ export default function Footer() {
 
       <div className="container-x relative z-10">
         {/* Call to action */}
-        <div className="flex flex-col gap-4 border-b border-white/10 py-7 sm:flex-row sm:items-center sm:justify-between">
-          <div className="max-w-2xl">
-            <div className="mb-2 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-violet-300">
-              <Sparkles size={14} />
-              Have a creative idea?
+        {/* Call to action — hide on Contact page */}
+        {pathname !== '/contact' && (
+          <div className="flex flex-col gap-4 border-b border-white/10 py-7 sm:flex-row sm:items-center sm:justify-between">
+            <div className="max-w-2xl">
+              <div className="mb-2 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-violet-300">
+                <Sparkles size={14} />
+                Have a creative idea?
+              </div>
+
+              <h2 className="text-xl font-bold leading-tight sm:text-2xl">
+                Let's create something{' '}
+                <span className="bg-gradient-to-r from-sky-300 via-violet-400 to-pink-400 bg-clip-text text-transparent">
+                  extraordinary.
+                </span>
+              </h2>
+
+              <p className="mt-2 text-sm leading-6 text-white/50">
+                AI animation, brand advertisements and creative video production.
+              </p>
             </div>
 
-            <h2 className="text-xl font-bold leading-tight sm:text-2xl">
-              Let's create something{' '}
-              <span className="bg-gradient-to-r from-sky-300 via-violet-400 to-pink-400 bg-clip-text text-transparent">
-                extraordinary.
-              </span>
-            </h2>
-
-            <p className="mt-2 text-sm leading-6 text-white/50">
-              AI animation, brand advertisements and creative video production.
-            </p>
+            <NavLink
+              to="/contact"
+              className="group inline-flex shrink-0 items-center justify-center gap-2 self-start rounded-lg border border-amber-400/30 bg-gradient-to-r from-amber-300 via-yellow-0 to-amber-600 px-5 py-3 text-sm font-semibold text-black shadow-md shadow-amber-500/10 transition duration-300 hover:-translate-y-0.5 hover:border-amber-300 hover:shadow-lg hover:shadow-amber-400/20 sm:self-center"
+            >
+              Start a Project
+              <ArrowRight
+                size={16}
+                className="transition-transform group-hover:translate-x-1"
+              />
+            </NavLink>
           </div>
-
-          <NavLink
-            to="/contact"
-           className="group inline-flex shrink-0 items-center justify-center gap-2 self-start rounded-lg border border-amber-400/30 bg-gradient-to-r from-amber-300 via-yellow-0 to-amber-600 px-5 py-3 text-sm font-semibold text-black shadow-md shadow-amber-500/10 transition duration-300 hover:-translate-y-0.5 hover:border-amber-300 hover:shadow-lg hover:shadow-amber-400/20 sm:self-center"
-          >
-            Start a Project
-            <ArrowRight
-              size={16}
-              className="transition-transform group-hover:translate-x-1"
-            />
-          </NavLink>
-        </div>
+        )}
 
         {/* Footer columns */}
         <div className="grid grid-cols-1 gap-7 py-8 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
@@ -271,30 +274,30 @@ export default function Footer() {
                 </a>
               </li>
 
-             
-<li>
-  <a
-    href="https://www.google.com/maps/search/?api=1&query=Hinjewadi+Phase+I%2C+Shivaji+Chowk%2C+Pune%2C+Maharashtra+411057%2C+India"
-    target="_blank"
-    rel="noopener noreferrer"
-    aria-label="Open NGanimationCr location in Google Maps"
-    title="View location on Google Maps"
-    className="group flex items-start gap-3 text-sm leading-6 text-white/50 transition-colors duration-300 hover:text-white"
-  >
-    <MapPin
-      size={17}
-      className="mt-1 shrink-0 text-violet-300 transition-transform duration-300 group-hover:scale-110"
-    />
 
-    <span className="underline decoration-white/0 underline-offset-4 transition-all duration-300 group-hover:decoration-violet-300">
-      Hinjewadi Phase I, Shivaji Chowk,
-      Pune, Maharashtra – 411057, India
-      <span className="mt-1 block text-xs text-violet-300 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-        Open in Google Maps ↗
-      </span>
-    </span>
-  </a>
-</li>
+              <li>
+                <a
+                  href="https://www.google.com/maps/search/?api=1&query=Hinjewadi+Phase+I%2C+Shivaji+Chowk%2C+Pune%2C+Maharashtra+411057%2C+India"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Open NGanimationCr location in Google Maps"
+                  title="View location on Google Maps"
+                  className="group flex items-start gap-3 text-sm leading-6 text-white/50 transition-colors duration-300 hover:text-white"
+                >
+                  <MapPin
+                    size={17}
+                    className="mt-1 shrink-0 text-violet-300 transition-transform duration-300 group-hover:scale-110"
+                  />
+
+                  <span className="underline decoration-white/0 underline-offset-4 transition-all duration-300 group-hover:decoration-violet-300">
+                    Hinjewadi Phase I, Shivaji Chowk,
+                    Pune, Maharashtra – 411057, India
+                    <span className="mt-1 block text-xs text-violet-300 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                      Open in Google Maps ↗
+                    </span>
+                  </span>
+                </a>
+              </li>
 
             </ul>
 

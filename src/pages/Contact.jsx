@@ -323,10 +323,10 @@ export default function Contact() {
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-black text-white">
-      <div className="relative z-10 mx-auto w-full max-w-7xl px-3 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
+      <div className="relative z-10 mx-auto w-full max-w-7xl px-3 pt-1 pb-4 sm:px-6 sm:pt-2 sm:pb-6 lg:px-8 lg:pt-2 lg:pb-8">
         {/* PAGE HEADING */}
-        <header className="mb-4 sm:mb-5 lg:mb-6">
-          <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-amber-400/20 bg-[#111111] px-3 py-1.5 text-xs font-semibold tracking-[0.14em] text-amber-300">
+        <header className="mb-0">
+          <div className="mb-0 inline-flex items-center gap-2 rounded-full border border-amber-400/20 bg-[#111111] px-3 py-1.5 text-xs font-semibold tracking-[0.14em] text-amber-300">
             <Sparkles size={14} />
             {isPaymentForm
               ? 'NGANIMATIONCR · PAYMENT'
