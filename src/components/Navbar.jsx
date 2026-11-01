@@ -8,6 +8,7 @@ import InteractiveBrandText from './InteractiveBrandText'
 const links = [
   { to: '/', label: 'Home' },
   { to: '/services', label: 'Services' },
+  { to: '/courses', label: 'Courses' },
   { to: '/portfolio', label: 'Portfolio' },
   { to: '/blog', label: 'Blog' },
   { to: '/pricing', label: 'Pricing' },
