@@ -30,7 +30,7 @@ jobs:
         with:
           server: 184.168.100.184
           username: kpbisslzozf2
-          password: Akashya@12
+          password: ${{ secrets.FTP_PASSWORD }}
           protocol: ftp
           port: 21
           server-dir: /public_html/
