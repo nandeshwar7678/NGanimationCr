@@ -1,14 +1,17 @@
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Login() {
+  const navigate = useNavigate();
+
   const [form, setForm] = useState({
     email: "",
     password: "",
   });
 
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setForm({
@@ -18,17 +21,48 @@ export default function Login() {
     setError("");
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
+    setError("");
 
     if (!form.email.trim() || !form.password) {
       setError("Please enter your email and password.");
       return;
     }
 
-    setError(
-      "Login system is not connected yet. Please try again after backend setup."
-    );
+    setLoading(true);
+
+    try {
+      const response = await fetch(
+        "/api/auth/login.php",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            email: form.email.trim(),
+            password: form.password,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        setError(data.message || "Invalid email or password.");
+        return;
+      }
+
+      navigate("/my-learning");
+
+    } catch (err) {
+      setError("Unable to connect to server. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -50,10 +84,7 @@ export default function Login() {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label
-              htmlFor="email"
-              className="mb-2 block text-sm font-medium"
-            >
+            <label htmlFor="email" className="mb-2 block text-sm font-medium">
               Email Address
             </label>
 
@@ -65,15 +96,13 @@ export default function Login() {
               value={form.email}
               onChange={handleChange}
               placeholder="you@example.com"
+              required
               className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 outline-none transition focus:border-purple-500"
             />
           </div>
 
           <div>
-            <label
-              htmlFor="password"
-              className="mb-2 block text-sm font-medium"
-            >
+            <label htmlFor="password" className="mb-2 block text-sm font-medium">
               Password
             </label>
 
@@ -85,6 +114,7 @@ export default function Login() {
               value={form.password}
               onChange={handleChange}
               placeholder="Enter your password"
+              required
               className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 outline-none transition focus:border-purple-500"
             />
           </div>
@@ -92,7 +122,7 @@ export default function Login() {
           {error && (
             <p
               role="alert"
-              className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-200"
+              className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-200"
             >
               {error}
             </p>
@@ -100,9 +130,10 @@ export default function Login() {
 
           <button
             type="submit"
-            className="w-full rounded-lg bg-purple-600 py-3 font-semibold transition hover:bg-purple-700"
+            disabled={loading}
+            className="w-full rounded-lg bg-purple-600 py-3 font-semibold transition hover:bg-purple-700 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            Login
+            {loading ? "Logging in..." : "Login"}
           </button>
         </form>
 

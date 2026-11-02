@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -12,6 +13,8 @@ export default function Register() {
   });
 
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setForm({
@@ -19,10 +22,14 @@ export default function Register() {
       [e.target.name]: e.target.value,
     });
     setError("");
+    setSuccess("");
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
+    setError("");
+    setSuccess("");
 
     if (
       !form.name.trim() ||
@@ -44,9 +51,47 @@ export default function Register() {
       return;
     }
 
-    setError(
-      "Registration backend is not connected yet. Your account has not been created."
-    );
+    setLoading(true);
+
+    try {
+      const response = await fetch("https://aicloudetools.com/api/auth/register.php", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          name: form.name.trim(),
+          email: form.email.trim(),
+          password: form.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        setError(data.message || "Registration failed. Please try again.");
+        return;
+      }
+
+      setSuccess("Account created successfully! Redirecting to login...");
+
+      setForm({
+        name: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+      });
+
+      setTimeout(() => {
+        navigate("/login");
+      }, 1500);
+
+    } catch (err) {
+      setError("Unable to connect to server. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -68,10 +113,7 @@ export default function Register() {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label
-              htmlFor="name"
-              className="mb-2 block text-sm font-medium"
-            >
+            <label htmlFor="name" className="mb-2 block text-sm font-medium">
               Full Name
             </label>
 
@@ -83,15 +125,13 @@ export default function Register() {
               value={form.name}
               onChange={handleChange}
               placeholder="Enter your full name"
+              required
               className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 outline-none transition focus:border-purple-500"
             />
           </div>
 
           <div>
-            <label
-              htmlFor="email"
-              className="mb-2 block text-sm font-medium"
-            >
+            <label htmlFor="email" className="mb-2 block text-sm font-medium">
               Email Address
             </label>
 
@@ -103,15 +143,13 @@ export default function Register() {
               value={form.email}
               onChange={handleChange}
               placeholder="you@example.com"
+              required
               className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 outline-none transition focus:border-purple-500"
             />
           </div>
 
           <div>
-            <label
-              htmlFor="password"
-              className="mb-2 block text-sm font-medium"
-            >
+            <label htmlFor="password" className="mb-2 block text-sm font-medium">
               Password
             </label>
 
@@ -123,15 +161,14 @@ export default function Register() {
               value={form.password}
               onChange={handleChange}
               placeholder="Minimum 8 characters"
+              minLength={8}
+              required
               className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 outline-none transition focus:border-purple-500"
             />
           </div>
 
           <div>
-            <label
-              htmlFor="confirmPassword"
-              className="mb-2 block text-sm font-medium"
-            >
+            <label htmlFor="confirmPassword" className="mb-2 block text-sm font-medium">
               Confirm Password
             </label>
 
@@ -143,6 +180,7 @@ export default function Register() {
               value={form.confirmPassword}
               onChange={handleChange}
               placeholder="Enter password again"
+              required
               className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 outline-none transition focus:border-purple-500"
             />
           </div>
@@ -150,17 +188,27 @@ export default function Register() {
           {error && (
             <p
               role="alert"
-              className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-200"
+              className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-200"
             >
               {error}
             </p>
           )}
 
+          {success && (
+            <p
+              role="status"
+              className="rounded-lg border border-green-500/30 bg-green-500/10 p-3 text-sm text-green-200"
+            >
+              {success}
+            </p>
+          )}
+
           <button
             type="submit"
-            className="w-full rounded-lg bg-purple-600 py-3 font-semibold transition hover:bg-purple-700"
+            disabled={loading}
+            className="w-full rounded-lg bg-purple-600 py-3 font-semibold transition hover:bg-purple-700 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            Create Account
+            {loading ? "Creating Account..." : "Create Account"}
           </button>
         </form>
 

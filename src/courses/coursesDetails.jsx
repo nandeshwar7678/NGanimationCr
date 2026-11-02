@@ -1,5 +1,5 @@
 
-import React from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   Clock,
@@ -11,90 +11,148 @@ import {
   ShoppingCart,
 } from "lucide-react";
 
-const courseData = {
-  "ai-video-creation": {
-    title: "AI Video Creation",
-    category: "Artificial Intelligence",
-    level: "Beginner",
-    duration: "6 Weeks",
-    price: 999,
-    icon: "🎬",
-    description:
-      "Learn how to create professional AI videos, cinematic animations and engaging social media content. This course is designed for beginners who want to start their AI video creation journey.",
-    lessons: [
-      "Introduction to AI Video Creation",
-      "AI Tools and Their Uses",
-      "Writing Effective AI Prompts",
-      "AI Image Generation",
-      "Image to Video Animation",
-      "Character Consistency",
-      "AI Voice and Lip Sync",
-      "Cinematic Video Editing",
-      "Social Media Reels Creation",
-      "Final Practical Project",
-    ],
-  },
-  "ai-animation-masterclass": {
-    title: "AI Animation Masterclass",
-    category: "Animation",
-    level: "Beginner",
-    duration: "8 Weeks",
-    price: 1499,
-    icon: "🎨",
-    description:
-      "Learn AI animation, character design, storytelling and cinematic visual creation through practical lessons.",
-    lessons: [
-      "Animation Fundamentals",
-      "AI Character Design",
-      "Character Consistency",
-      "Scene Creation",
-      "AI Animation Tools",
-      "Character Movement",
-      "Storytelling",
-      "Final Animation Project",
-    ],
-  },
-  "instagram-reels-creation": {
-    title: "Instagram Reels Creation",
-    category: "Content Creation",
-    level: "Beginner",
-    duration: "4 Weeks",
-    price: 799,
-    icon: "📱",
-    description:
-      "Learn to create engaging Instagram Reels with creative ideas, editing techniques, hooks and storytelling.",
-    lessons: [
-      "Introduction to Reels",
-      "Finding Content Ideas",
-      "Writing Short Scripts",
-      "Video Recording Basics",
-      "Editing Techniques",
-      "Hooks and Captions",
-      "Hashtags and SEO",
-      "Final Reel Project",
-    ],
-  },
+const courseCategories = {
+  "ai-video-creation": "Artificial Intelligence",
+  "ai-animation-masterclass": "Animation",
+  "instagram-reels-creation": "Content Creation",
+};
+
+const courseIcons = {
+  "ai-video-creation": "🎬",
+  "ai-animation-masterclass": "🎨",
+  "instagram-reels-creation": "📱",
+};
+
+const courseLessons = {
+  "ai-video-creation": [
+    "Introduction to AI Video Creation",
+    "AI Tools and Their Uses",
+    "Writing Effective AI Prompts",
+    "AI Image Generation",
+    "Image to Video Animation",
+    "Character Consistency",
+    "AI Voice and Lip Sync",
+    "Cinematic Video Editing",
+    "Social Media Reels Creation",
+    "Final Practical Project",
+  ],
+  "ai-animation-masterclass": [
+    "Animation Fundamentals",
+    "AI Character Design",
+    "Character Consistency",
+    "Scene Creation",
+    "AI Animation Tools",
+    "Character Movement",
+    "Storytelling",
+    "Final Animation Project",
+  ],
+  "instagram-reels-creation": [
+    "Introduction to Reels",
+    "Finding Content Ideas",
+    "Writing Short Scripts",
+    "Video Recording Basics",
+    "Editing Techniques",
+    "Hooks and Captions",
+    "Hashtags and SEO",
+    "Final Reel Project",
+  ],
 };
 
 export default function CourseDetails() {
   const { slug } = useParams();
   const navigate = useNavigate();
 
-  const course = courseData[slug];
+  const [course, setCourse] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  if (!course) {
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchCourse = async () => {
+      setLoading(true);
+      setError("");
+      setCourse(null);
+
+      try {
+        const response = await fetch("/api/courses/list.php");
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+          throw new Error("Unable to load course details.");
+        }
+
+        const foundCourse = (data.courses || []).find(
+          (item) => item.slug === slug
+        );
+
+        if (!cancelled) {
+          if (foundCourse) {
+            setCourse(foundCourse);
+          } else {
+            setError("Course not found or currently unavailable.");
+          }
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setError("Unable to load course details. Please try again.");
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchCourse();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [slug]);
+
+  const formatPrice = (price) =>
+    new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+      maximumFractionDigits: 0,
+    }).format(price);
+
+  const lessons = courseLessons[slug] || [];
+
+  if (loading) {
     return (
-      <div className="min-h-screen bg-slate-950 px-6 py-24 text-center text-white">
-        <h1 className="text-3xl font-bold">Course Not Found</h1>
+      <div className="flex min-h-screen items-center justify-center bg-slate-950 text-white">
+        Loading course details...
+      </div>
+    );
+  }
+
+  if (error || !course) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-slate-950 px-6 text-center text-white">
+        <h1 className="text-3xl font-bold">Course Unavailable</h1>
+
+        <p className="mt-4 text-slate-400">
+          {error || "This course could not be found."}
+        </p>
+
         <button
           onClick={() => navigate("/courses")}
-          className="mt-6 rounded-lg bg-purple-600 px-6 py-3"
+          className="mt-6 rounded-lg bg-purple-600 px-6 py-3 font-semibold hover:bg-purple-700"
         >
           Back to Courses
         </button>
       </div>
     );
   }
+
+  const category = courseCategories[course.slug] || "Online Course";
+  const icon = courseIcons[course.slug] || "🎓";
+
+  const handleEnroll = () => {
+    alert("Payment integration will be connected in the next step.");
+  };
 
   return (
     <div className="min-h-screen bg-slate-950 text-white">
@@ -111,7 +169,7 @@ export default function CourseDetails() {
           <div className="grid items-center gap-12 lg:grid-cols-2">
             <div>
               <p className="mb-4 font-semibold text-purple-400">
-                {course.category}
+                {category}
               </p>
 
               <h1 className="text-4xl font-bold leading-tight md:text-6xl">
@@ -135,19 +193,17 @@ export default function CourseDetails() {
 
                 <span className="flex items-center gap-2">
                   <BookOpen size={18} />
-                  {course.lessons.length} Lessons
+                  {lessons.length} Lessons
                 </span>
               </div>
 
               <div className="mt-9 flex flex-wrap items-center gap-5">
                 <span className="text-4xl font-bold">
-                  ₹{course.price}
+                  {formatPrice(course.price)}
                 </span>
 
                 <button
-                  onClick={() =>
-                    alert("Enrollment and payment will be connected in the next step.")
-                  }
+                  onClick={handleEnroll}
                   className="flex items-center gap-2 rounded-xl bg-purple-600 px-7 py-4 font-bold transition hover:bg-purple-700"
                 >
                   <ShoppingCart size={19} />
@@ -156,8 +212,16 @@ export default function CourseDetails() {
               </div>
             </div>
 
-            <div className="flex min-h-[320px] items-center justify-center rounded-3xl border border-white/10 bg-gradient-to-br from-purple-800/40 to-indigo-900/40">
-              <span className="text-[130px]">{course.icon}</span>
+            <div className="flex min-h-[320px] items-center justify-center overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-purple-800/40 to-indigo-900/40">
+              {course.thumbnail_url ? (
+                <img
+                  src={course.thumbnail_url}
+                  alt={course.title}
+                  className="h-full max-h-[420px] w-full object-cover"
+                />
+              ) : (
+                <span className="text-[130px]">{icon}</span>
+              )}
             </div>
           </div>
         </div>
@@ -165,28 +229,32 @@ export default function CourseDetails() {
 
       <section className="mx-auto grid max-w-7xl gap-12 px-6 py-16 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <h2 className="text-3xl font-bold">
-            What You Will Learn
-          </h2>
+          <h2 className="text-3xl font-bold">What You Will Learn</h2>
 
           <p className="mt-3 text-slate-400">
             Explore the topics included in this course.
           </p>
 
-          <div className="mt-8 grid gap-4 sm:grid-cols-2">
-            {course.lessons.map((lesson, index) => (
-              <div
-                key={index}
-                className="flex items-start gap-3 rounded-xl border border-slate-800 bg-slate-900 p-4"
-              >
-                <CheckCircle2
-                  size={20}
-                  className="mt-0.5 shrink-0 text-purple-400"
-                />
-                <span className="text-slate-200">{lesson}</span>
-              </div>
-            ))}
-          </div>
+          {lessons.length > 0 ? (
+            <div className="mt-8 grid gap-4 sm:grid-cols-2">
+              {lessons.map((lesson, index) => (
+                <div
+                  key={index}
+                  className="flex items-start gap-3 rounded-xl border border-slate-800 bg-slate-900 p-4"
+                >
+                  <CheckCircle2
+                    size={20}
+                    className="mt-0.5 shrink-0 text-purple-400"
+                  />
+                  <span className="text-slate-200">{lesson}</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-6 rounded-xl border border-slate-800 bg-slate-900 p-5 text-slate-400">
+              Course topics will be announced soon.
+            </p>
+          )}
         </div>
 
         <aside className="h-fit rounded-2xl border border-slate-800 bg-slate-900 p-6">
@@ -200,14 +268,17 @@ export default function CourseDetails() {
               <PlayCircle size={18} />
               Recorded Video Lessons
             </li>
+
             <li className="flex items-center gap-3">
               <Clock size={18} />
               Lifetime Access
             </li>
+
             <li className="flex items-center gap-3">
               <BookOpen size={18} />
-              {course.lessons.length} Learning Lessons
+              {lessons.length} Learning Lessons
             </li>
+
             <li className="flex items-center gap-3">
               <CheckCircle2 size={18} />
               Practical Learning
@@ -216,12 +287,13 @@ export default function CourseDetails() {
 
           <div className="mt-8 border-t border-slate-700 pt-6">
             <p className="text-sm text-slate-400">Course Price</p>
-            <p className="mt-2 text-3xl font-bold">₹{course.price}</p>
+
+            <p className="mt-2 text-3xl font-bold">
+              {formatPrice(course.price)}
+            </p>
 
             <button
-              onClick={() =>
-                alert("Payment integration will be added next.")
-              }
+              onClick={handleEnroll}
               className="mt-5 w-full rounded-xl bg-purple-600 py-4 font-bold hover:bg-purple-700"
             >
               Enroll Now

@@ -1,41 +1,119 @@
 
-import { Link } from "react-router-dom";
-
-const courses = [
-  {
-    id: 1,
-    title: "AI Video Creation",
-    description: "Learn AI video generation and cinematic editing.",
-    icon: "🎬",
-    progress: 0,
-    slug: "ai-video-creation",
-  },
-  {
-    id: 2,
-    title: "AI Animation Masterclass",
-    description: "Learn AI animation and character design.",
-    icon: "🎨",
-    progress: 0,
-    slug: "ai-animation-masterclass",
-  },
-];
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function MyLearning() {
+  const navigate = useNavigate();
+
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const checkLogin = async () => {
+      try {
+        const response = await fetch(
+          "/api/auth/me.php",
+          {
+            method: "GET",
+            credentials: "include",
+          }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+          navigate("/login", { replace: true });
+          return;
+        }
+
+        setUser(data.user);
+      } catch (err) {
+        setError("Unable to connect to server. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkLogin();
+  }, [navigate]);
+
+  const handleLogout = async () => {
+    try {
+      const response = await fetch(
+       "/api/auth/logout.php",
+        {
+          method: "POST",
+          credentials: "include",
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        setError(data.message || "Logout failed.");
+        return;
+      }
+
+      navigate("/login", { replace: true });
+    } catch (err) {
+      setError("Unable to logout. Please try again.");
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-950 text-white">
+        Checking your account...
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-5 bg-slate-950 px-5 text-white">
+        <p className="text-center text-red-300">{error}</p>
+        <button
+          onClick={() => window.location.reload()}
+          className="rounded-lg bg-purple-600 px-6 py-3 font-semibold"
+        >
+          Try Again
+        </button>
+      </div>
+    );
+  }
+
+  if (!user) return null;
+
   return (
     <div className="min-h-screen bg-slate-950 px-5 py-14 text-white">
       <div className="mx-auto max-w-7xl">
-        <div className="mb-12">
-          <p className="font-semibold uppercase tracking-widest text-purple-400">
-            NGAnimationCR Academy
-          </p>
 
-          <h1 className="mt-3 text-4xl font-bold">
-            My Learning
-          </h1>
+        <div className="mb-10 flex flex-wrap items-center justify-between gap-5">
+          <div>
+            <p className="font-semibold uppercase tracking-widest text-purple-400">
+              NGAnimationCR Academy
+            </p>
 
-          <p className="mt-3 text-slate-400">
-            Continue learning and improve your creative skills.
-          </p>
+            <h1 className="mt-3 text-4xl font-bold">
+              My Learning
+            </h1>
+
+            <p className="mt-3 text-slate-400">
+              Welcome back, {user.name}!
+            </p>
+
+            <p className="mt-1 text-sm text-slate-500">
+              {user.email}
+            </p>
+          </div>
+
+          <button
+            onClick={handleLogout}
+            className="rounded-lg border border-red-500/50 px-5 py-3 font-semibold text-red-300 transition hover:bg-red-500 hover:text-white"
+          >
+            Logout
+          </button>
         </div>
 
         <div className="mb-10 grid gap-5 sm:grid-cols-3">
@@ -58,7 +136,7 @@ export default function MyLearning() {
         </div>
 
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-          <h2 className="text-2xl font-bold">Available Courses</h2>
+          <h2 className="text-2xl font-bold">My Purchased Courses</h2>
 
           <Link
             to="/courses"
@@ -68,51 +146,26 @@ export default function MyLearning() {
           </Link>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2">
-          {courses.map((course) => (
-            <div
-              key={course.id}
-              className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900"
-            >
-              <div className="flex h-40 items-center justify-center bg-gradient-to-br from-purple-900 to-indigo-950">
-                <span className="text-7xl">{course.icon}</span>
-              </div>
+        <div className="rounded-2xl border border-slate-800 bg-slate-900 p-10 text-center">
+          <div className="text-5xl">🎓</div>
 
-              <div className="p-6">
-                <h3 className="text-xl font-bold">{course.title}</h3>
+          <h3 className="mt-5 text-xl font-bold">
+            Your Learning Journey Starts Here
+          </h3>
 
-                <p className="mt-3 text-sm text-slate-400">
-                  {course.description}
-                </p>
+          <p className="mt-3 text-sm text-slate-400">
+            You haven't enrolled in any courses yet.
+            Explore our courses and start learning.
+          </p>
 
-                <div className="mt-6">
-                  <div className="mb-2 flex justify-between text-sm">
-                    <span className="text-slate-400">Progress</span>
-                    <span>{course.progress}%</span>
-                  </div>
-
-                  <div className="h-2 overflow-hidden rounded-full bg-slate-800">
-                    <div
-                      className="h-full rounded-full bg-purple-500"
-                      style={{ width: `${course.progress}%` }}
-                    />
-                  </div>
-                </div>
-
-                <Link
-                  to={`/courses/${course.slug}`}
-                  className="mt-6 block rounded-lg border border-purple-500 px-5 py-3 text-center font-semibold text-purple-300 transition hover:bg-purple-600 hover:text-white"
-                >
-                  View Course
-                </Link>
-              </div>
-            </div>
-          ))}
+          <Link
+            to="/courses"
+            className="mt-6 inline-block rounded-lg bg-purple-600 px-6 py-3 font-semibold hover:bg-purple-700"
+          >
+            Browse Courses
+          </Link>
         </div>
 
-        <p className="mt-8 text-sm text-amber-300">
-          Demo dashboard: purchased-course access will be connected after the backend and payment setup.
-        </p>
       </div>
     </div>
   );
