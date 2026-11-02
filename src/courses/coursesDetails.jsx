@@ -23,57 +23,27 @@ const courseIcons = {
   "instagram-reels-creation": "📱",
 };
 
-const courseLessons = {
-  "ai-video-creation": [
-    "Introduction to AI Video Creation",
-    "AI Tools and Their Uses",
-    "Writing Effective AI Prompts",
-    "AI Image Generation",
-    "Image to Video Animation",
-    "Character Consistency",
-    "AI Voice and Lip Sync",
-    "Cinematic Video Editing",
-    "Social Media Reels Creation",
-    "Final Practical Project",
-  ],
-  "ai-animation-masterclass": [
-    "Animation Fundamentals",
-    "AI Character Design",
-    "Character Consistency",
-    "Scene Creation",
-    "AI Animation Tools",
-    "Character Movement",
-    "Storytelling",
-    "Final Animation Project",
-  ],
-  "instagram-reels-creation": [
-    "Introduction to Reels",
-    "Finding Content Ideas",
-    "Writing Short Scripts",
-    "Video Recording Basics",
-    "Editing Techniques",
-    "Hooks and Captions",
-    "Hashtags and SEO",
-    "Final Reel Project",
-  ],
-};
-
 export default function CourseDetails() {
   const { slug } = useParams();
   const navigate = useNavigate();
 
   const [course, setCourse] = useState(null);
+  const [lessons, setLessons] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [lessonsLoading, setLessonsLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
     let cancelled = false;
 
-    const fetchCourse = async () => {
+    const fetchCourseData = async () => {
       setLoading(true);
+      setLessonsLoading(true);
       setError("");
       setCourse(null);
+      setLessons([]);
 
+      // Fetch course details
       try {
         const response = await fetch("/api/courses/list.php");
         const data = await response.json();
@@ -102,9 +72,35 @@ export default function CourseDetails() {
           setLoading(false);
         }
       }
+
+      // Fetch lessons from MySQL API
+      try {
+        const response = await fetch(
+          `/api/courses/lessons.php?slug=${encodeURIComponent(slug)}`
+        );
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+          throw new Error("Unable to load lessons.");
+        }
+
+        if (!cancelled) {
+          setLessons(data.lessons || []);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setLessons([]);
+          console.error("Lessons loading error:", err);
+        }
+      } finally {
+        if (!cancelled) {
+          setLessonsLoading(false);
+        }
+      }
     };
 
-    fetchCourse();
+    fetchCourseData();
 
     return () => {
       cancelled = true;
@@ -117,8 +113,6 @@ export default function CourseDetails() {
       currency: "INR",
       maximumFractionDigits: 0,
     }).format(price);
-
-  const lessons = courseLessons[slug] || [];
 
   if (loading) {
     return (
@@ -193,7 +187,7 @@ export default function CourseDetails() {
 
                 <span className="flex items-center gap-2">
                   <BookOpen size={18} />
-                  {lessons.length} Lessons
+                  {lessonsLoading ? "Loading..." : `${lessons.length} Lessons`}
                 </span>
               </div>
 
@@ -235,18 +229,33 @@ export default function CourseDetails() {
             Explore the topics included in this course.
           </p>
 
-          {lessons.length > 0 ? (
+          {lessonsLoading ? (
+            <p className="mt-6 text-slate-400">
+              Loading course lessons...
+            </p>
+          ) : lessons.length > 0 ? (
             <div className="mt-8 grid gap-4 sm:grid-cols-2">
-              {lessons.map((lesson, index) => (
+              {lessons.map((lesson) => (
                 <div
-                  key={index}
+                  key={lesson.id}
                   className="flex items-start gap-3 rounded-xl border border-slate-800 bg-slate-900 p-4"
                 >
                   <CheckCircle2
                     size={20}
                     className="mt-0.5 shrink-0 text-purple-400"
                   />
-                  <span className="text-slate-200">{lesson}</span>
+
+                  <div>
+                    <h3 className="font-medium text-slate-200">
+                      {lesson.title}
+                    </h3>
+
+                    {lesson.description && (
+                      <p className="mt-2 text-sm leading-6 text-slate-400">
+                        {lesson.description}
+                      </p>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
@@ -276,7 +285,7 @@ export default function CourseDetails() {
 
             <li className="flex items-center gap-3">
               <BookOpen size={18} />
-              {lessons.length} Learning Lessons
+              {lessonsLoading ? "Loading..." : `${lessons.length} Learning Lessons`}
             </li>
 
             <li className="flex items-center gap-3">
