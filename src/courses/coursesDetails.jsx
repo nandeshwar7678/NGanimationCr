@@ -84,7 +84,9 @@ export default function CourseDetails() {
           setError("Unable to load course details. Please try again.");
         }
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
 
       try {
@@ -107,7 +109,9 @@ export default function CourseDetails() {
           console.error("Lessons loading error:", err);
         }
       } finally {
-        if (!cancelled) setLessonsLoading(false);
+        if (!cancelled) {
+          setLessonsLoading(false);
+        }
       }
     };
 
@@ -139,7 +143,7 @@ export default function CourseDetails() {
         throw new Error("Unable to load Razorpay. Please try again.");
       }
 
-      // Step 2: Create order from backend
+      // Step 2: Create payment order
       const orderResponse = await fetch(
         "/api/payments/create-order.php",
         {
@@ -162,7 +166,7 @@ export default function CourseDetails() {
         );
       }
 
-      // Step 3: Open Razorpay Checkout
+      // Step 3: Configure Razorpay Checkout
       const options = {
         key: orderData.key_id,
         amount: orderData.amount,
@@ -172,18 +176,56 @@ export default function CourseDetails() {
         order_id: orderData.order_id,
 
         handler: async function (paymentResponse) {
-          console.log(
-            "Razorpay payment response:",
-            paymentResponse
-          );
+          setPaymentMessage("Verifying your payment...");
 
-          // IMPORTANT:
-          // Next step: send this response to the server-side
-          // verify-payment.php API before granting course access.
+          try {
+            // Step 4: Verify payment on backend
+            const verifyResponse = await fetch(
+              "/api/payments/verify-payment.php",
+              {
+                method: "POST",
+                credentials: "include",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  razorpay_order_id:
+                    paymentResponse.razorpay_order_id,
+                  razorpay_payment_id:
+                    paymentResponse.razorpay_payment_id,
+                  razorpay_signature:
+                    paymentResponse.razorpay_signature,
+                }),
+              }
+            );
 
-          setPaymentMessage(
-            "Payment submitted. Server verification is required before course access is activated."
-          );
+            const verifyData = await verifyResponse.json();
+
+            if (!verifyResponse.ok || !verifyData.success) {
+              throw new Error(
+                verifyData.message ||
+                  "Payment verification failed."
+              );
+            }
+
+            // Step 5: Enrollment activated by backend
+            setPaymentMessage(
+              "Payment successful! Your enrollment is activated."
+            );
+
+            alert(
+              "Payment successful! Welcome to NGAnimationCR Academy."
+            );
+
+            navigate("/my-learning");
+          } catch (err) {
+            console.error("Payment verification error:", err);
+
+            setPaymentMessage(
+              err.message ||
+                "Payment verification is pending. Please contact support."
+            );
+          }
         },
 
         modal: {
@@ -203,13 +245,19 @@ export default function CourseDetails() {
         console.error("Payment failed:", response.error);
 
         setPaymentMessage(
-          response.error?.description || "Payment failed. Please try again."
+          response.error?.description ||
+            "Payment failed. Please try again."
         );
       });
 
       razorpay.open();
+
     } catch (err) {
-      setPaymentMessage(err.message || "Something went wrong.");
+      console.error("Enrollment error:", err);
+
+      setPaymentMessage(
+        err.message || "Something went wrong. Please try again."
+      );
     } finally {
       setPaymentLoading(false);
     }
@@ -227,9 +275,11 @@ export default function CourseDetails() {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-slate-950 px-6 text-center text-white">
         <h1 className="text-3xl font-bold">Course Unavailable</h1>
+
         <p className="mt-4 text-slate-400">
           {error || "This course could not be found."}
         </p>
+
         <button
           onClick={() => navigate("/courses")}
           className="mt-6 rounded-lg bg-purple-600 px-6 py-3 font-semibold hover:bg-purple-700"
@@ -240,7 +290,9 @@ export default function CourseDetails() {
     );
   }
 
-  const category = courseCategories[course.slug] || "Online Course";
+  const category =
+    courseCategories[course.slug] || "Online Course";
+
   const icon = courseIcons[course.slug] || "🎓";
 
   const enrollButton = (
@@ -303,6 +355,7 @@ export default function CourseDetails() {
                 <span className="text-4xl font-bold">
                   {formatPrice(course.price)}
                 </span>
+
                 {enrollButton}
               </div>
 
@@ -333,7 +386,9 @@ export default function CourseDetails() {
 
       <section className="mx-auto grid max-w-7xl gap-12 px-6 py-16 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <h2 className="text-3xl font-bold">What You Will Learn</h2>
+          <h2 className="text-3xl font-bold">
+            What You Will Learn
+          </h2>
 
           <p className="mt-3 text-slate-400">
             Explore the topics included in this course.
@@ -407,7 +462,9 @@ export default function CourseDetails() {
           </ul>
 
           <div className="mt-8 border-t border-slate-700 pt-6">
-            <p className="text-sm text-slate-400">Course Price</p>
+            <p className="text-sm text-slate-400">
+              Course Price
+            </p>
 
             <p className="mt-2 text-3xl font-bold">
               {formatPrice(course.price)}
