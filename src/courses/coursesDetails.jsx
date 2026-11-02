@@ -23,6 +23,21 @@ const courseIcons = {
   "instagram-reels-creation": "📱",
 };
 
+const loadRazorpayScript = () => {
+  return new Promise((resolve) => {
+    if (window.Razorpay) {
+      resolve(true);
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};
+
 export default function CourseDetails() {
   const { slug } = useParams();
   const navigate = useNavigate();
@@ -32,6 +47,8 @@ export default function CourseDetails() {
   const [loading, setLoading] = useState(true);
   const [lessonsLoading, setLessonsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [paymentLoading, setPaymentLoading] = useState(false);
+  const [paymentMessage, setPaymentMessage] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -43,7 +60,6 @@ export default function CourseDetails() {
       setCourse(null);
       setLessons([]);
 
-      // Fetch course details
       try {
         const response = await fetch("/api/courses/list.php");
         const data = await response.json();
@@ -63,17 +79,14 @@ export default function CourseDetails() {
             setError("Course not found or currently unavailable.");
           }
         }
-      } catch (err) {
+      } catch {
         if (!cancelled) {
           setError("Unable to load course details. Please try again.");
         }
       } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
+        if (!cancelled) setLoading(false);
       }
 
-      // Fetch lessons from MySQL API
       try {
         const response = await fetch(
           `/api/courses/lessons.php?slug=${encodeURIComponent(slug)}`
@@ -94,9 +107,7 @@ export default function CourseDetails() {
           console.error("Lessons loading error:", err);
         }
       } finally {
-        if (!cancelled) {
-          setLessonsLoading(false);
-        }
+        if (!cancelled) setLessonsLoading(false);
       }
     };
 
@@ -114,6 +125,96 @@ export default function CourseDetails() {
       maximumFractionDigits: 0,
     }).format(price);
 
+  const handleEnroll = async () => {
+    if (paymentLoading || !course) return;
+
+    setPaymentLoading(true);
+    setPaymentMessage("");
+
+    try {
+      // Step 1: Load Razorpay Checkout
+      const scriptLoaded = await loadRazorpayScript();
+
+      if (!scriptLoaded) {
+        throw new Error("Unable to load Razorpay. Please try again.");
+      }
+
+      // Step 2: Create order from backend
+      const orderResponse = await fetch(
+        "/api/payments/create-order.php",
+        {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            course_id: course.id,
+          }),
+        }
+      );
+
+      const orderData = await orderResponse.json();
+
+      if (!orderResponse.ok || !orderData.success) {
+        throw new Error(
+          orderData.message || "Unable to create payment order."
+        );
+      }
+
+      // Step 3: Open Razorpay Checkout
+      const options = {
+        key: orderData.key_id,
+        amount: orderData.amount,
+        currency: orderData.currency,
+        name: "NGAnimationCR Academy",
+        description: orderData.course_title,
+        order_id: orderData.order_id,
+
+        handler: async function (paymentResponse) {
+          console.log(
+            "Razorpay payment response:",
+            paymentResponse
+          );
+
+          // IMPORTANT:
+          // Next step: send this response to the server-side
+          // verify-payment.php API before granting course access.
+
+          setPaymentMessage(
+            "Payment submitted. Server verification is required before course access is activated."
+          );
+        },
+
+        modal: {
+          ondismiss: function () {
+            setPaymentMessage("Payment window closed.");
+          },
+        },
+
+        theme: {
+          color: "#9333ea",
+        },
+      };
+
+      const razorpay = new window.Razorpay(options);
+
+      razorpay.on("payment.failed", function (response) {
+        console.error("Payment failed:", response.error);
+
+        setPaymentMessage(
+          response.error?.description || "Payment failed. Please try again."
+        );
+      });
+
+      razorpay.open();
+    } catch (err) {
+      setPaymentMessage(err.message || "Something went wrong.");
+    } finally {
+      setPaymentLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-950 text-white">
@@ -126,11 +227,9 @@ export default function CourseDetails() {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-slate-950 px-6 text-center text-white">
         <h1 className="text-3xl font-bold">Course Unavailable</h1>
-
         <p className="mt-4 text-slate-400">
           {error || "This course could not be found."}
         </p>
-
         <button
           onClick={() => navigate("/courses")}
           className="mt-6 rounded-lg bg-purple-600 px-6 py-3 font-semibold hover:bg-purple-700"
@@ -144,9 +243,16 @@ export default function CourseDetails() {
   const category = courseCategories[course.slug] || "Online Course";
   const icon = courseIcons[course.slug] || "🎓";
 
-  const handleEnroll = () => {
-    alert("Payment integration will be connected in the next step.");
-  };
+  const enrollButton = (
+    <button
+      onClick={handleEnroll}
+      disabled={paymentLoading}
+      className="flex items-center justify-center gap-2 rounded-xl bg-purple-600 px-7 py-4 font-bold transition hover:bg-purple-700 disabled:cursor-not-allowed disabled:opacity-60"
+    >
+      <ShoppingCart size={19} />
+      {paymentLoading ? "Please wait..." : "Enroll Now"}
+    </button>
+  );
 
   return (
     <div className="min-h-screen bg-slate-950 text-white">
@@ -187,7 +293,9 @@ export default function CourseDetails() {
 
                 <span className="flex items-center gap-2">
                   <BookOpen size={18} />
-                  {lessonsLoading ? "Loading..." : `${lessons.length} Lessons`}
+                  {lessonsLoading
+                    ? "Loading..."
+                    : `${lessons.length} Lessons`}
                 </span>
               </div>
 
@@ -195,15 +303,17 @@ export default function CourseDetails() {
                 <span className="text-4xl font-bold">
                   {formatPrice(course.price)}
                 </span>
-
-                <button
-                  onClick={handleEnroll}
-                  className="flex items-center gap-2 rounded-xl bg-purple-600 px-7 py-4 font-bold transition hover:bg-purple-700"
-                >
-                  <ShoppingCart size={19} />
-                  Enroll Now
-                </button>
+                {enrollButton}
               </div>
+
+              {paymentMessage && (
+                <p
+                  role="status"
+                  className="mt-5 max-w-xl rounded-lg border border-purple-500/30 bg-purple-500/10 p-4 text-sm text-purple-200"
+                >
+                  {paymentMessage}
+                </p>
+              )}
             </div>
 
             <div className="flex min-h-[320px] items-center justify-center overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-purple-800/40 to-indigo-900/40">
@@ -285,7 +395,9 @@ export default function CourseDetails() {
 
             <li className="flex items-center gap-3">
               <BookOpen size={18} />
-              {lessonsLoading ? "Loading..." : `${lessons.length} Learning Lessons`}
+              {lessonsLoading
+                ? "Loading..."
+                : `${lessons.length} Learning Lessons`}
             </li>
 
             <li className="flex items-center gap-3">
@@ -301,12 +413,7 @@ export default function CourseDetails() {
               {formatPrice(course.price)}
             </p>
 
-            <button
-              onClick={handleEnroll}
-              className="mt-5 w-full rounded-xl bg-purple-600 py-4 font-bold hover:bg-purple-700"
-            >
-              Enroll Now
-            </button>
+            {enrollButton}
           </div>
         </aside>
       </section>
