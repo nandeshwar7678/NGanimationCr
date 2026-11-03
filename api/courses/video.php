@@ -14,18 +14,22 @@ $origin = $_SERVER["HTTP_ORIGIN"] ?? "";
 if (in_array($origin, $allowedOrigins, true)) {
     header("Access-Control-Allow-Origin: " . $origin);
     header("Access-Control-Allow-Credentials: true");
+    header("Vary: Origin");
 }
 
 header("Access-Control-Allow-Methods: GET, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 
+// Handle preflight request
 if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
     http_response_code(204);
     exit;
 }
 
+// Only GET allowed
 if ($_SERVER["REQUEST_METHOD"] !== "GET") {
     http_response_code(405);
+
     echo json_encode([
         "success" => false,
         "message" => "Method not allowed."
@@ -33,7 +37,7 @@ if ($_SERVER["REQUEST_METHOD"] !== "GET") {
     exit;
 }
 
-// Start the existing login session
+// Start session
 session_set_cookie_params([
     "lifetime" => 0,
     "path" => "/",
@@ -47,6 +51,7 @@ session_start();
 // Check login
 if (!isset($_SESSION["user_id"])) {
     http_response_code(401);
+
     echo json_encode([
         "success" => false,
         "message" => "Please login first."
@@ -57,10 +62,15 @@ if (!isset($_SESSION["user_id"])) {
 $userId = (int) $_SESSION["user_id"];
 
 // Get lesson ID
-$lessonId = filter_input(INPUT_GET, "lesson_id", FILTER_VALIDATE_INT);
+$lessonId = filter_input(
+    INPUT_GET,
+    "lesson_id",
+    FILTER_VALIDATE_INT
+);
 
 if (!$lessonId || $lessonId < 1) {
     http_response_code(400);
+
     echo json_encode([
         "success" => false,
         "message" => "Valid lesson ID is required."
@@ -68,40 +78,55 @@ if (!$lessonId || $lessonId < 1) {
     exit;
 }
 
+// Database connection
 require_once __DIR__ . "/../config/database.php";
 
 try {
 
-    // Check lesson, course enrollment and successful payment
-    $stmt = $pdo->prepare(
-        "SELECT
+    // Verify lesson, course, enrollment and paid order
+    $sql = "
+        SELECT
             l.id,
             l.title,
             l.description,
             l.drive_file_id,
             c.id AS course_id
-         FROM lessons l
-         INNER JOIN courses c
+
+        FROM lessons l
+
+        INNER JOIN courses c
             ON c.id = l.course_id
-         INNER JOIN enrollments e
+
+        INNER JOIN enrollments e
             ON e.course_id = c.id
-         INNER JOIN orders o
+
+        INNER JOIN orders o
             ON o.id = e.order_id
             AND o.user_id = e.user_id
-         WHERE
-            l.id = ?
-            AND e.user_id = ?
+            AND o.course_id = e.course_id
+
+        WHERE
+            l.id = :lesson_id
+            AND e.user_id = :user_id
             AND o.status = 'paid'
             AND c.published = 1
-         LIMIT 1"
-    );
 
-    $stmt->execute([$lessonId, $userId]);
+        LIMIT 1
+    ";
+
+    $stmt = $pdo->prepare($sql);
+
+    $stmt->execute([
+        ":lesson_id" => $lessonId,
+        ":user_id" => $userId
+    ]);
 
     $lesson = $stmt->fetch(PDO::FETCH_ASSOC);
 
+    // Enrollment or payment not found
     if (!$lesson) {
         http_response_code(403);
+
         echo json_encode([
             "success" => false,
             "message" => "You are not enrolled in this course or payment is not verified."
@@ -109,14 +134,15 @@ try {
         exit;
     }
 
-    // Do not expose pending placeholder IDs
-    $driveFileId = $lesson["drive_file_id"];
+    // Check video availability
+    $driveFileId = trim((string) $lesson["drive_file_id"]);
 
     if (
-        !$driveFileId ||
+        $driveFileId === "" ||
         strpos($driveFileId, "PENDING_UPLOAD_") === 0
     ) {
         http_response_code(404);
+
         echo json_encode([
             "success" => false,
             "message" => "Video is not available yet."
@@ -124,10 +150,11 @@ try {
         exit;
     }
 
-    // Return video ID only after server-side authorization.
-    // The actual player integration will be added next.
+    // Authorized response
     echo json_encode([
         "success" => true,
+        "message" => "Video access verified successfully.",
+
         "lesson" => [
             "id" => (int) $lesson["id"],
             "title" => $lesson["title"],
@@ -139,6 +166,7 @@ try {
 
 } catch (PDOException $e) {
 
+    // Log actual error privately
     error_log("Video access error: " . $e->getMessage());
 
     http_response_code(500);

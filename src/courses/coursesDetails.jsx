@@ -34,6 +34,7 @@ const loadRazorpayScript = () => {
     script.src = "https://checkout.razorpay.com/v1/checkout.js";
     script.onload = () => resolve(true);
     script.onerror = () => resolve(false);
+
     document.body.appendChild(script);
   });
 };
@@ -44,24 +45,39 @@ export default function CourseDetails() {
 
   const [course, setCourse] = useState(null);
   const [lessons, setLessons] = useState([]);
+
   const [loading, setLoading] = useState(true);
   const [lessonsLoading, setLessonsLoading] = useState(true);
+
   const [error, setError] = useState("");
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [paymentMessage, setPaymentMessage] = useState("");
 
+  // Enrollment states
+  const [isEnrolled, setIsEnrolled] = useState(false);
+  const [enrollmentLoading, setEnrollmentLoading] = useState(true);
+
+  // Fetch course, lessons and enrollment status
   useEffect(() => {
     let cancelled = false;
 
     const fetchCourseData = async () => {
       setLoading(true);
       setLessonsLoading(true);
+      setEnrollmentLoading(true);
+
       setError("");
       setCourse(null);
       setLessons([]);
+      setIsEnrolled(false);
+      setPaymentMessage("");
 
+      // Step 1: Fetch course details
       try {
-        const response = await fetch("/api/courses/list.php");
+        const response = await fetch("/api/courses/list.php", {
+          cache: "no-store",
+        });
+
         const data = await response.json();
 
         if (!response.ok || !data.success) {
@@ -75,13 +91,56 @@ export default function CourseDetails() {
         if (!cancelled) {
           if (foundCourse) {
             setCourse(foundCourse);
+
+            // Step 2: Check whether user is enrolled
+            try {
+              const enrollmentResponse = await fetch(
+                "/api/courses/my-courses.php",
+                {
+                  method: "GET",
+                  credentials: "include",
+                  cache: "no-store",
+                }
+              );
+
+              const enrollmentData = await enrollmentResponse.json();
+
+              const enrolled =
+                enrollmentResponse.ok &&
+                enrollmentData.success &&
+                (enrollmentData.courses || []).some(
+                  (item) =>
+                    Number(item.id) === Number(foundCourse.id)
+                );
+
+              if (!cancelled) {
+                setIsEnrolled(Boolean(enrolled));
+              }
+            } catch (enrollmentError) {
+              console.error(
+                "Enrollment check error:",
+                enrollmentError
+              );
+
+              if (!cancelled) {
+                setIsEnrolled(false);
+              }
+            } finally {
+              if (!cancelled) {
+                setEnrollmentLoading(false);
+              }
+            }
           } else {
             setError("Course not found or currently unavailable.");
+            setEnrollmentLoading(false);
           }
         }
-      } catch {
+      } catch (err) {
         if (!cancelled) {
-          setError("Unable to load course details. Please try again.");
+          setError(
+            "Unable to load course details. Please try again."
+          );
+          setEnrollmentLoading(false);
         }
       } finally {
         if (!cancelled) {
@@ -89,9 +148,13 @@ export default function CourseDetails() {
         }
       }
 
+      // Step 3: Fetch course lessons
       try {
         const response = await fetch(
-          `/api/courses/lessons.php?slug=${encodeURIComponent(slug)}`
+          `/api/courses/lessons.php?slug=${encodeURIComponent(slug)}`,
+          {
+            cache: "no-store",
+          }
         );
 
         const data = await response.json();
@@ -122,6 +185,7 @@ export default function CourseDetails() {
     };
   }, [slug]);
 
+  // Format price
   const formatPrice = (price) =>
     new Intl.NumberFormat("en-IN", {
       style: "currency",
@@ -129,6 +193,7 @@ export default function CourseDetails() {
       maximumFractionDigits: 0,
     }).format(price);
 
+  // Handle course enrollment and Razorpay payment
   const handleEnroll = async () => {
     if (paymentLoading || !course) return;
 
@@ -191,8 +256,10 @@ export default function CourseDetails() {
                 body: JSON.stringify({
                   razorpay_order_id:
                     paymentResponse.razorpay_order_id,
+
                   razorpay_payment_id:
                     paymentResponse.razorpay_payment_id,
+
                   razorpay_signature:
                     paymentResponse.razorpay_signature,
                 }),
@@ -209,6 +276,8 @@ export default function CourseDetails() {
             }
 
             // Step 5: Enrollment activated by backend
+            setIsEnrolled(true);
+
             setPaymentMessage(
               "Payment successful! Your enrollment is activated."
             );
@@ -251,7 +320,6 @@ export default function CourseDetails() {
       });
 
       razorpay.open();
-
     } catch (err) {
       console.error("Enrollment error:", err);
 
@@ -263,6 +331,7 @@ export default function CourseDetails() {
     }
   };
 
+  // Loading screen
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-950 text-white">
@@ -271,10 +340,13 @@ export default function CourseDetails() {
     );
   }
 
+  // Error screen
   if (error || !course) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-slate-950 px-6 text-center text-white">
-        <h1 className="text-3xl font-bold">Course Unavailable</h1>
+        <h1 className="text-3xl font-bold">
+          Course Unavailable
+        </h1>
 
         <p className="mt-4 text-slate-400">
           {error || "This course could not be found."}
@@ -295,21 +367,48 @@ export default function CourseDetails() {
 
   const icon = courseIcons[course.slug] || "🎓";
 
+  // Enroll button
   const enrollButton = (
     <button
       onClick={handleEnroll}
-      disabled={paymentLoading}
+      disabled={paymentLoading || enrollmentLoading}
       className="flex items-center justify-center gap-2 rounded-xl bg-purple-600 px-7 py-4 font-bold transition hover:bg-purple-700 disabled:cursor-not-allowed disabled:opacity-60"
     >
       <ShoppingCart size={19} />
+
       {paymentLoading ? "Please wait..." : "Enroll Now"}
     </button>
   );
 
+  // Start learning button
+  const startLearningButton = (
+    <button
+      onClick={() => navigate("/my-learning")}
+      className="flex items-center justify-center gap-2 rounded-xl bg-green-600 px-7 py-4 font-bold transition hover:bg-green-700"
+    >
+      <PlayCircle size={19} />
+      Start Learning
+    </button>
+  );
+
+  // Decide which button to show
+  const courseAction = enrollmentLoading ? (
+    <span className="text-sm text-slate-400">
+      Checking enrollment...
+    </span>
+  ) : isEnrolled ? (
+    startLearningButton
+  ) : (
+    enrollButton
+  );
+
   return (
     <div className="min-h-screen bg-slate-950 text-white">
+
+      {/* Course Hero Section */}
       <section className="bg-gradient-to-br from-purple-950 via-slate-950 to-indigo-950 px-6 py-16">
         <div className="mx-auto max-w-7xl">
+
           <button
             onClick={() => navigate("/courses")}
             className="mb-10 flex items-center gap-2 text-sm text-slate-300 hover:text-white"
@@ -319,6 +418,7 @@ export default function CourseDetails() {
           </button>
 
           <div className="grid items-center gap-12 lg:grid-cols-2">
+
             <div>
               <p className="mb-4 font-semibold text-purple-400">
                 {category}
@@ -333,6 +433,7 @@ export default function CourseDetails() {
               </p>
 
               <div className="mt-8 flex flex-wrap gap-6 text-sm text-slate-300">
+
                 <span className="flex items-center gap-2">
                   <Clock size={18} />
                   {course.duration}
@@ -345,19 +446,32 @@ export default function CourseDetails() {
 
                 <span className="flex items-center gap-2">
                   <BookOpen size={18} />
+
                   {lessonsLoading
                     ? "Loading..."
                     : `${lessons.length} Lessons`}
                 </span>
+
               </div>
 
               <div className="mt-9 flex flex-wrap items-center gap-5">
-                <span className="text-4xl font-bold">
-                  {formatPrice(course.price)}
-                </span>
 
-                {enrollButton}
+                {!enrollmentLoading && !isEnrolled && (
+                  <span className="text-4xl font-bold">
+                    {formatPrice(course.price)}
+                  </span>
+                )}
+
+                {courseAction}
+
               </div>
+
+              {isEnrolled && !enrollmentLoading && (
+                <p className="mt-4 flex items-center gap-2 text-sm text-green-400">
+                  <CheckCircle2 size={18} />
+                  You are enrolled in this course.
+                </p>
+              )}
 
               {paymentMessage && (
                 <p
@@ -367,9 +481,12 @@ export default function CourseDetails() {
                   {paymentMessage}
                 </p>
               )}
+
             </div>
 
+            {/* Course Thumbnail */}
             <div className="flex min-h-[320px] items-center justify-center overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-purple-800/40 to-indigo-900/40">
+
               {course.thumbnail_url ? (
                 <img
                   src={course.thumbnail_url}
@@ -377,15 +494,22 @@ export default function CourseDetails() {
                   className="h-full max-h-[420px] w-full object-cover"
                 />
               ) : (
-                <span className="text-[130px]">{icon}</span>
+                <span className="text-[130px]">
+                  {icon}
+                </span>
               )}
+
             </div>
+
           </div>
         </div>
       </section>
 
+      {/* Course Content Section */}
       <section className="mx-auto grid max-w-7xl gap-12 px-6 py-16 lg:grid-cols-3">
+
         <div className="lg:col-span-2">
+
           <h2 className="text-3xl font-bold">
             What You Will Learn
           </h2>
@@ -399,7 +523,9 @@ export default function CourseDetails() {
               Loading course lessons...
             </p>
           ) : lessons.length > 0 ? (
+
             <div className="mt-8 grid gap-4 sm:grid-cols-2">
+
               {lessons.map((lesson) => (
                 <div
                   key={lesson.id}
@@ -421,23 +547,33 @@ export default function CourseDetails() {
                       </p>
                     )}
                   </div>
+
                 </div>
               ))}
+
             </div>
+
           ) : (
             <p className="mt-6 rounded-xl border border-slate-800 bg-slate-900 p-5 text-slate-400">
               Course topics will be announced soon.
             </p>
           )}
+
         </div>
 
+        {/* Course Includes Sidebar */}
         <aside className="h-fit rounded-2xl border border-slate-800 bg-slate-900 p-6">
+
           <div className="flex items-center gap-3">
             <PlayCircle size={25} className="text-purple-400" />
-            <h3 className="text-xl font-bold">Course Includes</h3>
+
+            <h3 className="text-xl font-bold">
+              Course Includes
+            </h3>
           </div>
 
           <ul className="mt-6 space-y-5 text-sm text-slate-300">
+
             <li className="flex items-center gap-3">
               <PlayCircle size={18} />
               Recorded Video Lessons
@@ -450,6 +586,7 @@ export default function CourseDetails() {
 
             <li className="flex items-center gap-3">
               <BookOpen size={18} />
+
               {lessonsLoading
                 ? "Loading..."
                 : `${lessons.length} Learning Lessons`}
@@ -459,20 +596,31 @@ export default function CourseDetails() {
               <CheckCircle2 size={18} />
               Practical Learning
             </li>
+
           </ul>
 
           <div className="mt-8 border-t border-slate-700 pt-6">
-            <p className="text-sm text-slate-400">
-              Course Price
-            </p>
 
-            <p className="mt-2 text-3xl font-bold">
-              {formatPrice(course.price)}
-            </p>
+            {!enrollmentLoading && !isEnrolled && (
+              <>
+                <p className="text-sm text-slate-400">
+                  Course Price
+                </p>
 
-            {enrollButton}
+                <p className="mt-2 text-3xl font-bold">
+                  {formatPrice(course.price)}
+                </p>
+              </>
+            )}
+
+            <div className="mt-4">
+              {courseAction}
+            </div>
+
           </div>
+
         </aside>
+
       </section>
     </div>
   );

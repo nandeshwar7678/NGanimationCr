@@ -78,6 +78,11 @@ const socialLinks = [
 export default function Footer() {
   const year = new Date().getFullYear()
   const { pathname } = useLocation()
+   const isAcademyPage =
+    pathname === "/courses" ||
+    pathname.startsWith("/courses/") ||
+    pathname === "/my-learning" ||
+    pathname.startsWith("/learn/")
   const handleServiceClick = (slug) => {
     if (window.location.pathname === '/services') {
       const currentService = new URLSearchParams(
@@ -108,7 +113,7 @@ export default function Footer() {
       <div className="container-x relative z-10">
         {/* Call to action */}
         {/* Call to action — hide on Contact page */}
-        {pathname !== '/contact' && (
+        {pathname !== '/contact' && !isAcademyPage && (
           <div className="flex flex-col gap-4 border-b border-white/10 py-7 sm:flex-row sm:items-center sm:justify-between">
             <div className="max-w-2xl">
               <div className="mb-2 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-violet-300">
@@ -310,7 +315,7 @@ export default function Footer() {
             </NavLink>
 
             {/* Payment Portal */}
-            <NavLink
+            {/* <NavLink
               to="/contact?type=payment"
               className="group mt-5 flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-3.5 transition-all duration-300 hover:border-violet-400/30 hover:bg-violet-500/[0.08]"
             >
@@ -333,7 +338,7 @@ export default function Footer() {
                 size={17}
                 className="shrink-0 text-white/40 transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-violet-300"
               />
-            </NavLink>
+            </NavLink> */}
           </div>
         </div>
 

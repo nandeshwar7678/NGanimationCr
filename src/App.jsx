@@ -21,6 +21,7 @@ import CourseDetails from './courses/coursesDetails.jsx'
 import Register from './courses/register.jsx'
 import Login from './courses/login.jsx'
 import MyLearning from './courses/myLearning.jsx'
+import LessonPlayer from './courses/lessonPlayer.jsx'
 
 export default function App() {
   const location = useLocation();
@@ -51,6 +52,7 @@ export default function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
           <Route path="/my-learning" element={<MyLearning />} />
+          <Route path="/learn/:slug" element={<LessonPlayer />} />
         </Routes>
       </main>
 
