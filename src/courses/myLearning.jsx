@@ -249,11 +249,11 @@ export default function MyLearning() {
                   </div>
 
                   <Link
-                    to={`/courses/${course.slug}`}
-                    className="mt-6 block rounded-lg bg-purple-600 px-5 py-3 text-center font-semibold transition hover:bg-purple-700"
-                  >
-                    Continue Learning →
-                  </Link>
+  to={`/learn/${course.slug}`}
+  className="mt-6 block rounded-lg bg-purple-600 px-5 py-3 text-center font-semibold transition hover:bg-purple-700"
+>
+  Continue Learning →
+</Link>
                 </div>
               </div>
             ))}

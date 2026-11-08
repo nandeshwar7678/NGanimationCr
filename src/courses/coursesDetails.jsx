@@ -383,7 +383,7 @@ export default function CourseDetails() {
   // Start learning button
   const startLearningButton = (
     <button
-      onClick={() => navigate("/my-learning")}
+      onClick={() => navigate(`/learn/${course.slug}`)}
       className="flex items-center justify-center gap-2 rounded-xl bg-green-600 px-7 py-4 font-bold transition hover:bg-green-700"
     >
       <PlayCircle size={19} />

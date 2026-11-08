@@ -1,6 +1,7 @@
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { UserCircle, ChevronDown, BookOpen, LogOut } from "lucide-react";
 
 const courseIcons = {
   "ai-video-creation": "🎬",
@@ -21,6 +22,14 @@ export default function Courses() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const [user, setUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  const profileRef = useRef(null);
+
+  // Fetch courses
   useEffect(() => {
     const fetchCourses = async () => {
       try {
@@ -42,6 +51,77 @@ export default function Courses() {
     fetchCourses();
   }, []);
 
+  // Check logged-in user
+  useEffect(() => {
+    const checkUser = async () => {
+      try {
+        const response = await fetch("/api/auth/me.php", {
+          credentials: "include",
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success && data.user) {
+          setUser(data.user);
+        } else {
+          setUser(null);
+        }
+      } catch (err) {
+        setUser(null);
+      } finally {
+        setAuthLoading(false);
+      }
+    };
+
+    checkUser();
+  }, []);
+
+  // Close profile dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        profileRef.current &&
+        !profileRef.current.contains(event.target)
+      ) {
+        setProfileOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  // Logout
+  const handleLogout = async () => {
+    if (loggingOut) return;
+
+    setLoggingOut(true);
+
+    try {
+      const response = await fetch("/api/auth/logout.php", {
+        method: "POST",
+        credentials: "include",
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "Logout failed.");
+      }
+
+      setUser(null);
+      setProfileOpen(false);
+      navigate("/courses");
+    } catch (err) {
+      alert(err.message || "Logout nahi ho paya. Please try again.");
+    } finally {
+      setLoggingOut(false);
+    }
+  };
+
   const formatPrice = (price) =>
     new Intl.NumberFormat("en-IN", {
       style: "currency",
@@ -49,9 +129,95 @@ export default function Courses() {
       maximumFractionDigits: 0,
     }).format(price);
 
+  const getInitial = () => {
+    return user?.name?.trim()?.charAt(0)?.toUpperCase() || "U";
+  };
+
   return (
     <div className="min-h-screen bg-slate-950 text-white">
-      <section className="px-6 py-20 text-center">
+
+      {/* Account Header */}
+      <div className="mx-auto flex max-w-7xl justify-end px-6 pt-6">
+        {!authLoading && !user && (
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => navigate("/login")}
+              className="rounded-lg border border-purple-500 px-4 py-2 text-sm font-semibold text-purple-300 transition hover:bg-purple-500/10"
+            >
+              Login
+            </button>
+
+            <button
+              onClick={() => navigate("/register")}
+              className="rounded-lg bg-purple-600 px-4 py-2 text-sm font-semibold transition hover:bg-purple-700"
+            >
+              Register
+            </button>
+          </div>
+        )}
+
+        {!authLoading && user && (
+          <div className="relative" ref={profileRef}>
+            <button
+              onClick={() => setProfileOpen(!profileOpen)}
+              className="flex items-center gap-2 rounded-full border border-slate-700 bg-slate-900 p-1.5 pr-3 transition hover:border-purple-500"
+              aria-label="Open profile menu"
+              aria-expanded={profileOpen}
+            >
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 text-lg font-bold text-white">
+                {getInitial()}
+              </div>
+
+              <span className="max-w-28 truncate text-sm font-medium text-slate-200">
+                {user.name || "My Account"}
+              </span>
+
+              <ChevronDown
+                size={16}
+                className={`text-slate-400 transition ${
+                  profileOpen ? "rotate-180" : ""
+                }`}
+              />
+            </button>
+
+            {profileOpen && (
+              <div className="absolute right-0 z-50 mt-3 w-56 overflow-hidden rounded-xl border border-slate-700 bg-slate-900 shadow-2xl">
+                <div className="border-b border-slate-700 px-4 py-3">
+                  <p className="truncate font-semibold text-white">
+                    {user.name}
+                  </p>
+                  <p className="truncate text-xs text-slate-400">
+                    {user.email}
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => {
+                    setProfileOpen(false);
+                    navigate("/my-learning");
+                  }}
+                  className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm text-slate-300 transition hover:bg-purple-600/20 hover:text-white"
+                >
+                  <BookOpen size={18} />
+                  My Learning
+                </button>
+
+                <button
+                  onClick={handleLogout}
+                  disabled={loggingOut}
+                  className="flex w-full items-center gap-3 border-t border-slate-700 px-4 py-3 text-left text-sm text-red-400 transition hover:bg-red-500/10 disabled:opacity-50"
+                >
+                  <LogOut size={18} />
+                  {loggingOut ? "Logging out..." : "Logout"}
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Hero Section */}
+      <section className="px-6 py-16 text-center">
         <p className="mb-4 text-sm font-semibold uppercase tracking-[4px] text-purple-400">
           NGAnimationCR Academy
         </p>
@@ -66,6 +232,7 @@ export default function Courses() {
         </p>
       </section>
 
+      {/* Courses Section */}
       <section className="mx-auto max-w-7xl px-6 pb-20">
         <div className="mb-8">
           <h2 className="text-2xl font-bold">Explore Our Courses</h2>
