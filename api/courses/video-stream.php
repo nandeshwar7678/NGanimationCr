@@ -1,7 +1,14 @@
+
 <?php
 
-// Secure Google Drive video streaming.
-// Supports HTTP Range Requests for video seeking.
+// =====================================================
+// NGAnimationCR Academy - Secure Google Drive Streaming
+// Private video streaming with HTTP Range support
+// =====================================================
+
+// Hide PHP errors from video response.
+ini_set("display_errors", "0");
+error_reporting(E_ALL);
 
 $allowedOrigins = [
     "http://localhost:5173",
@@ -27,10 +34,13 @@ if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
 
 if ($_SERVER["REQUEST_METHOD"] !== "GET") {
     http_response_code(405);
-    exit;
+    exit("Method not allowed.");
 }
 
-// Start session.
+// =====================================================
+// 1. CHECK LOGIN SESSION
+// =====================================================
+
 session_set_cookie_params([
     "lifetime" => 0,
     "path" => "/",
@@ -59,13 +69,17 @@ if (!$lessonId || $lessonId < 1) {
     exit("Invalid lesson ID.");
 }
 
-// Verify active account, paid enrollment and published course.
+// =====================================================
+// 2. VERIFY PAID ENROLLMENT AND ACCOUNT STATUS
+// =====================================================
+
 require_once __DIR__ . "/../config/database.php";
 
 try {
 
     $sql = "
-        SELECT l.drive_file_id
+        SELECT
+            l.drive_file_id
 
         FROM lessons l
 
@@ -107,7 +121,7 @@ try {
 
     if (!$lesson) {
         http_response_code(403);
-        exit("Course access denied. Check your account status and enrollment.");
+        exit("Course access denied.");
     }
 
     $fileId = trim((string) $lesson["drive_file_id"]);
@@ -120,24 +134,40 @@ try {
         exit("Video not available.");
     }
 
+    // Basic Google Drive ID validation.
+    if (!preg_match('/^[a-zA-Z0-9_-]+$/', $fileId)) {
+        http_response_code(400);
+        exit("Invalid Google Drive file ID.");
+    }
+
 } catch (Throwable $e) {
 
-    error_log("Video authorization error: " . $e->getMessage());
+    error_log(
+        "Video authorization error: " . $e->getMessage()
+    );
 
     http_response_code(500);
     exit("Unable to verify video access.");
 }
 
-// Release PHP session lock before long streaming request.
+// Release session lock before streaming.
 session_write_close();
 
-// Locate private Google credentials.
+// =====================================================
+// 3. LOAD GOOGLE SERVICE ACCOUNT CREDENTIALS
+// =====================================================
+
 $homeDir = dirname(__DIR__, 3);
 
-$credentialsPath = $homeDir .
-    "/private/nganimationcr-academy-keys.json";
+$credentialsPath =
+    $homeDir . "/private/nganimationcr-academy-keys.json";
 
-if (!is_file($credentialsPath) || !is_readable($credentialsPath)) {
+if (
+    !is_file($credentialsPath) ||
+    !is_readable($credentialsPath)
+) {
+    error_log("Google credentials file unavailable.");
+
     http_response_code(500);
     exit("Google credentials unavailable.");
 }
@@ -156,15 +186,22 @@ if (
     exit("Invalid Google credentials.");
 }
 
-// Base64 URL encoding.
+// =====================================================
+// 4. BASE64 URL ENCODING
+// =====================================================
+
 function base64UrlEncode($data) {
+
     return rtrim(
         strtr(base64_encode($data), "+/", "-_"),
         "="
     );
 }
 
-// Generate Google JWT.
+// =====================================================
+// 5. GENERATE GOOGLE JWT
+// =====================================================
+
 $now = time();
 
 $jwtHeader = [
@@ -207,65 +244,98 @@ if (!openssl_sign(
 
 $jwt = $unsignedJwt . "." . base64UrlEncode($signature);
 
-// Get Google access token.
+// =====================================================
+// 6. GET GOOGLE ACCESS TOKEN
+// =====================================================
+
 $tokenCurl = curl_init(
     "https://oauth2.googleapis.com/token"
 );
 
 curl_setopt_array($tokenCurl, [
     CURLOPT_POST => true,
+
     CURLOPT_POSTFIELDS => http_build_query([
         "grant_type" =>
             "urn:ietf:params:oauth:grant-type:jwt-bearer",
         "assertion" => $jwt
     ]),
+
     CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_CONNECTTIMEOUT => 20,
     CURLOPT_TIMEOUT => 30
 ]);
 
 $tokenResponse = curl_exec($tokenCurl);
-$tokenStatus = curl_getinfo($tokenCurl, CURLINFO_HTTP_CODE);
+
+$tokenStatus = curl_getinfo(
+    $tokenCurl,
+    CURLINFO_HTTP_CODE
+);
+
 $tokenError = curl_error($tokenCurl);
 
 curl_close($tokenCurl);
 
-$tokenData = json_decode($tokenResponse ?: "", true);
+$tokenData = json_decode(
+    $tokenResponse ?: "",
+    true
+);
 
 if (
     $tokenResponse === false ||
     $tokenStatus !== 200 ||
     empty($tokenData["access_token"])
 ) {
-    error_log("Google token error: " . $tokenError . " " . $tokenResponse);
+
+    error_log(
+        "Google token error: " .
+        $tokenError . " " . $tokenResponse
+    );
 
     http_response_code(502);
     exit("Unable to authenticate with Google Drive.");
 }
 
-// Validate browser Range header.
+// =====================================================
+// 7. VALIDATE HTTP RANGE REQUEST
+// =====================================================
+
 $range = $_SERVER["HTTP_RANGE"] ?? "";
 
 if (
     $range !== "" &&
-    !preg_match('/^bytes=(?:[0-9]+-[0-9]*|-[0-9]+)$/', $range)
+    !preg_match(
+        '/^bytes=(?:[0-9]+-[0-9]*|-[0-9]+)$/',
+        $range
+    )
 ) {
     http_response_code(416);
     header("Content-Range: bytes */*");
     exit;
 }
 
-// Google Drive media URL.
+// =====================================================
+// 8. GOOGLE DRIVE VIDEO URL
+// =====================================================
+
 $driveUrl =
     "https://www.googleapis.com/drive/v3/files/" .
     rawurlencode($fileId) .
     "?alt=media";
 
+// =====================================================
+// 9. HANDLE GOOGLE RESPONSE HEADERS
+// =====================================================
+
 $upstreamStatus = 0;
 $upstreamHeaders = [];
 $headersSent = false;
 
-// Forward necessary response headers.
-$headerCallback = function ($curl, $headerLine) use (
+$headerCallback = function (
+    $curl,
+    $headerLine
+) use (
     &$upstreamStatus,
     &$upstreamHeaders,
     &$headersSent
@@ -273,6 +343,7 @@ $headerCallback = function ($curl, $headerLine) use (
 
     $length = strlen($headerLine);
 
+    // Detect HTTP response status.
     if (
         preg_match(
             '/^HTTP\/\S+\s+([0-9]+)/i',
@@ -281,14 +352,17 @@ $headerCallback = function ($curl, $headerLine) use (
         )
     ) {
         $upstreamStatus = (int) $matches[1];
+
         $upstreamHeaders = [];
+
+        $headersSent = false;
 
         return $length;
     }
 
+    // End of response headers.
     if (trim($headerLine) === "") {
 
-        // Only accept successful video responses.
         if (
             $upstreamStatus === 200 ||
             $upstreamStatus === 206
@@ -315,7 +389,10 @@ $headerCallback = function ($curl, $headerLine) use (
             }
 
             header("Cache-Control: private, no-store");
-            header('Content-Disposition: inline; filename="lesson-video.mp4"');
+
+            header(
+                'Content-Disposition: inline; filename="lesson-video.mp4"'
+            );
 
             $headersSent = true;
         }
@@ -323,18 +400,29 @@ $headerCallback = function ($curl, $headerLine) use (
         return $length;
     }
 
+    // Store response headers.
     if (strpos($headerLine, ":") !== false) {
 
         [$name, $value] = explode(":", $headerLine, 2);
 
-        $upstreamHeaders[strtolower(trim($name))] = trim($value);
+        $upstreamHeaders[
+            strtolower(trim($name))
+        ] = trim($value);
     }
 
     return $length;
 };
 
-// Stream video chunks directly to browser.
-$writeCallback = function ($curl, $chunk) use (&$headersSent) {
+// =====================================================
+// 10. STREAM VIDEO DATA TO BROWSER
+// =====================================================
+
+$writeCallback = function (
+    $curl,
+    $chunk
+) use (
+    &$headersSent
+) {
 
     if (!$headersSent) {
         return 0;
@@ -351,12 +439,16 @@ $writeCallback = function ($curl, $chunk) use (&$headersSent) {
     return strlen($chunk);
 };
 
-// Disable output buffering.
+// Clear output buffers.
 while (ob_get_level() > 0) {
     ob_end_clean();
 }
 
 set_time_limit(0);
+
+// =====================================================
+// 11. REQUEST VIDEO FROM GOOGLE DRIVE
+// =====================================================
 
 $driveCurl = curl_init($driveUrl);
 
@@ -369,35 +461,69 @@ if ($range !== "") {
 }
 
 curl_setopt_array($driveCurl, [
+
     CURLOPT_HTTPHEADER => $requestHeaders,
+
     CURLOPT_FOLLOWLOCATION => true,
+
     CURLOPT_MAXREDIRS => 5,
+
     CURLOPT_RETURNTRANSFER => false,
+
     CURLOPT_HEADER => false,
+
     CURLOPT_HEADERFUNCTION => $headerCallback,
+
     CURLOPT_WRITEFUNCTION => $writeCallback,
+
     CURLOPT_CONNECTTIMEOUT => 30,
+
     CURLOPT_TIMEOUT => 0,
+
     CURLOPT_BUFFERSIZE => 262144
+
 ]);
 
 $result = curl_exec($driveCurl);
 
 $curlError = curl_error($driveCurl);
-$finalStatus = curl_getinfo($driveCurl, CURLINFO_HTTP_CODE);
+
+$finalStatus = curl_getinfo(
+    $driveCurl,
+    CURLINFO_HTTP_CODE
+);
 
 curl_close($driveCurl);
 
+// =====================================================
+// 12. HANDLE STREAM ERRORS
+// =====================================================
+
 if ($result === false) {
-    error_log("Google video stream error: " . $curlError);
+
+    error_log(
+        "Google video stream error: " . $curlError
+    );
 }
 
-if ($finalStatus < 200 || $finalStatus >= 300) {
-    error_log("Google video stream returned HTTP " . $finalStatus);
+if (
+    $finalStatus < 200 ||
+    $finalStatus >= 300
+) {
+
+    error_log(
+        "Google video stream returned HTTP " .
+        $finalStatus
+    );
 
     if (!headers_sent()) {
-        http_response_code(
-            $finalStatus >= 400 ? $finalStatus : 502
-        );
+
+        if ($finalStatus > 0) {
+            http_response_code($finalStatus);
+        } else {
+            http_response_code(502);
+        }
     }
 }
+
+exit;

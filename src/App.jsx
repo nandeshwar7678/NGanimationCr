@@ -68,11 +68,9 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
 
-          {/* Student Dashboard */}
+          {/* Student Pages */}
           <Route path="/my-learning" element={<MyLearning />} />
           <Route path="/profile" element={<Profile />} />
-
-          {/* Lesson Player */}
           <Route path="/learn/:slug" element={<LessonPlayer />} />
 
           {/* Blog */}

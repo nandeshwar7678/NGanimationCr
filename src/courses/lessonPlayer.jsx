@@ -5,7 +5,9 @@ import { useNavigate, useParams } from "react-router-dom";
 export default function LessonPlayer() {
   const { slug } = useParams();
   const navigate = useNavigate();
+
   const videoRef = useRef(null);
+  const playerSectionRef = useRef(null);
 
   const [lessons, setLessons] = useState([]);
   const [selectedLesson, setSelectedLesson] = useState(null);
@@ -24,6 +26,8 @@ export default function LessonPlayer() {
 
   // Load lessons and saved progress
   useEffect(() => {
+    let cancelled = false;
+
     const loadData = async () => {
       try {
         setLoading(true);
@@ -55,20 +59,45 @@ export default function LessonPlayer() {
           );
         }
 
-        setLessons(lessonsData.lessons || []);
-        setCompletedLessons(
-          (progressData.completed_lessons || []).map(Number)
-        );
-
+        if (!cancelled) {
+          setLessons(lessonsData.lessons || []);
+          setCompletedLessons(
+            (progressData.completed_lessons || []).map(Number)
+          );
+        }
       } catch (err) {
-        setError(err.message);
+        if (!cancelled) {
+          setError(err.message);
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     };
 
     loadData();
+
+    return () => {
+      cancelled = true;
+    };
   }, [slug]);
+
+  // Scroll to player after selected lesson is rendered on mobile
+  useEffect(() => {
+    if (!selectedLesson || window.innerWidth >= 1024) return;
+
+    const scrollTimer = window.requestAnimationFrame(() => {
+      playerSectionRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    });
+
+    return () => {
+      window.cancelAnimationFrame(scrollTimer);
+    };
+  }, [selectedLesson]);
 
   // Verify lesson access before loading video
   const openLesson = async (lesson) => {
@@ -79,7 +108,7 @@ export default function LessonPlayer() {
       setPlaybackRate("1");
 
       const response = await fetch(
-        `/api/courses/video.php?lesson_id=${lesson.id}`,
+        `/api/courses/video.php?lesson_id=${encodeURIComponent(lesson.id)}`,
         {
           credentials: "include",
           cache: "no-store"
@@ -237,7 +266,7 @@ export default function LessonPlayer() {
                     onClick={() => openLesson(lesson)}
                     disabled={videoLoading}
                     className={`w-full text-left p-4 rounded-xl border transition ${
-                      selectedLesson?.id === lesson.id
+                      Number(selectedLesson?.id) === Number(lesson.id)
                         ? "bg-purple-600/20 border-purple-500"
                         : "bg-white/5 border-white/10 hover:border-purple-500/50"
                     } disabled:opacity-50`}
@@ -265,7 +294,10 @@ export default function LessonPlayer() {
           </div>
 
           {/* Video Player */}
-          <div className="lg:col-span-2 bg-[#111827] border border-white/10 rounded-2xl p-5 sm:p-6">
+          <div
+            ref={playerSectionRef}
+            className="lg:col-span-2 bg-[#111827] border border-white/10 rounded-2xl p-5 sm:p-6 scroll-mt-28"
+          >
 
             {videoLoading ? (
               <div className="py-24 text-center text-gray-400">

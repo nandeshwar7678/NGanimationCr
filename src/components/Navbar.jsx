@@ -1,13 +1,13 @@
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import {
   Home as HomeIcon,
-  UserRound,
   ChevronDown,
   GraduationCap,
   LayoutDashboard,
   LogOut,
+  UserRound,
 } from 'lucide-react'
 
 import logo from '../assets/logo.png'
@@ -27,35 +27,45 @@ const links = [
 export default function Navbar() {
   const location = useLocation()
   const navigate = useNavigate()
+  const profileRef = useRef(null)
 
   const [user, setUser] = useState(null)
   const [authLoading, setAuthLoading] = useState(true)
   const [profileOpen, setProfileOpen] = useState(false)
+  const [loggingOut, setLoggingOut] = useState(false)
+
+  const isAdmin =
+    String(user?.role || '').toLowerCase() === 'admin'
+
+  const isStudent =
+    String(user?.role || '').toLowerCase() === 'student'
 
   const isPaymentPage =
     new URLSearchParams(location.search).get('type') === 'payment'
 
-  // Check logged-in user
+  // Verify current session
   useEffect(() => {
     let isMounted = true
 
     const checkUser = async () => {
       try {
         const response = await fetch('/api/auth/me.php', {
+          method: 'GET',
           credentials: 'include',
+          cache: 'no-store',
         })
 
         const data = await response.json()
 
-        if (isMounted) {
-          setUser(
-            response.ok && data.success && data.user
-              ? data.user
-              : null
-          )
+        if (!isMounted) return
+
+        if (response.ok && data.success && data.user) {
+          setUser(data.user)
+        } else {
+          setUser(null)
         }
       } catch (error) {
-        console.error('User verification failed:', error)
+        console.error('Session check error:', error)
 
         if (isMounted) {
           setUser(null)
@@ -67,19 +77,37 @@ export default function Navbar() {
       }
     }
 
-    checkUser()
+    setAuthLoading(true)
     setProfileOpen(false)
+    checkUser()
 
     return () => {
       isMounted = false
     }
   }, [location.pathname, location.search])
 
-  const isActive = (to) => {
-    if (to === '/') {
-      return location.pathname === '/'
+  // Close dropdown when clicking outside the header
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        profileRef.current &&
+        !profileRef.current.contains(event.target)
+      ) {
+        setProfileOpen(false)
+      }
     }
 
+    document.addEventListener('mousedown', handleClickOutside)
+    document.addEventListener('touchstart', handleClickOutside)
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+      document.removeEventListener('touchstart', handleClickOutside)
+    }
+  }, [])
+
+  const isActive = (to) => {
+    if (to === '/') return location.pathname === '/'
     return location.pathname === to
   }
 
@@ -92,7 +120,12 @@ export default function Navbar() {
       : 'text-white/60 hover:text-white'
   }
 
+  // Logout
   const handleLogout = async () => {
+    if (loggingOut) return
+
+    setLoggingOut(true)
+
     try {
       const response = await fetch('/api/auth/logout.php', {
         method: 'POST',
@@ -107,15 +140,19 @@ export default function Navbar() {
 
       setUser(null)
       setProfileOpen(false)
-      navigate('/')
+
+      navigate('/', { replace: true })
     } catch (error) {
       alert(error.message || 'Unable to logout')
+    } finally {
+      setLoggingOut(false)
     }
   }
 
-  const initials = user?.name?.trim()?.charAt(0)?.toUpperCase() || 'U'
+  const initials =
+    user?.name?.trim()?.charAt(0)?.toUpperCase() || 'U'
 
-  // Account section shared by desktop and mobile
+  // Account menu
   const accountMenu = (
     <div className="relative flex shrink-0 items-center gap-3">
 
@@ -141,7 +178,7 @@ export default function Navbar() {
         <>
           <button
             type="button"
-            onClick={() => setProfileOpen(!profileOpen)}
+            onClick={() => setProfileOpen((prev) => !prev)}
             aria-expanded={profileOpen}
             aria-label="Open profile menu"
             className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] p-1.5 pr-3 transition hover:border-violet-400/50 hover:bg-white/10"
@@ -182,17 +219,28 @@ export default function Navbar() {
               <div className="p-2">
 
                 <NavLink
-                  to="/my-learning"
+                  to="/profile"
                   onClick={() => setProfileOpen(false)}
                   className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm text-gray-300 transition hover:bg-white/10 hover:text-white"
                 >
-                  <GraduationCap size={18} />
-                  My Learning
+                  <UserRound size={18} />
+                  My Profile
                 </NavLink>
 
-                {user.role === 'admin' && (
+                {isStudent && (
                   <NavLink
-                    to="/admin"
+                    to="/my-learning"
+                    onClick={() => setProfileOpen(false)}
+                    className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm text-gray-300 transition hover:bg-white/10 hover:text-white"
+                  >
+                    <GraduationCap size={18} />
+                    My Learning
+                  </NavLink>
+                )}
+
+                {isAdmin && (
+                  <NavLink
+                    to="/admin/dashboard"
                     onClick={() => setProfileOpen(false)}
                     className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm text-violet-300 transition hover:bg-violet-500/10 hover:text-violet-200"
                   >
@@ -204,10 +252,11 @@ export default function Navbar() {
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm text-red-400 transition hover:bg-red-500/10"
+                  disabled={loggingOut}
+                  className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm text-red-400 transition hover:bg-red-500/10 disabled:opacity-50"
                 >
                   <LogOut size={18} />
-                  Logout
+                  {loggingOut ? 'Logging out...' : 'Logout'}
                 </button>
 
               </div>
@@ -215,11 +264,18 @@ export default function Navbar() {
           )}
         </>
       )}
+
+      {authLoading && (
+        <div className="h-9 w-9 animate-pulse rounded-full bg-white/10" />
+      )}
     </div>
   )
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/[0.08] bg-[#080811]/90 text-white shadow-lg shadow-black/10 backdrop-blur-2xl">
+    <header
+      ref={profileRef}
+      className="sticky top-0 z-50 border-b border-white/[0.08] bg-[#080811]/90 text-white shadow-lg shadow-black/10 backdrop-blur-2xl"
+    >
 
       {/* Desktop Navbar */}
       <div className="container-x hidden h-[76px] items-center justify-between gap-6 lg:flex">

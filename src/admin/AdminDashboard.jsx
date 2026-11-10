@@ -1,47 +1,91 @@
 
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function AdminDashboard() {
+  const navigate = useNavigate();
+
   const [stats, setStats] = useState(null);
   const [admin, setAdmin] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
+    let cancelled = false;
+
     const loadDashboard = async () => {
       try {
-        const response = await fetch("/api/admin/dashboard-stats.php", {
-          credentials: "include",
-        });
+        setLoading(true);
+        setError("");
 
-        const data = await response.json();
-
-        if (!response.ok || !data.success) {
-          throw new Error(data.message || "Unable to load dashboard");
-        }
-
-        setStats(data.stats);
-
-        const adminResponse = await fetch("/api/admin/admin-check.php", {
-          credentials: "include",
-        });
+        // First verify admin session
+        const adminResponse = await fetch(
+          "/api/admin/admin-check.php",
+          {
+            method: "GET",
+            credentials: "include",
+            cache: "no-store",
+          }
+        );
 
         const adminData = await adminResponse.json();
 
         if (!adminResponse.ok || !adminData.success) {
-          throw new Error(adminData.message || "Admin verification failed");
+          throw new Error(
+            adminData.message || "Admin verification failed."
+          );
         }
 
-        setAdmin(adminData.user);
+        const verifiedUser = adminData.user;
+
+        if (
+          String(verifiedUser?.role || "").toLowerCase() !== "admin"
+        ) {
+          throw new Error("You are not authorized to access this page.");
+        }
+
+        if (!cancelled) {
+          setAdmin(verifiedUser);
+        }
+
+        // Load statistics only after admin verification
+        const response = await fetch(
+          "/api/admin/dashboard-stats.php",
+          {
+            method: "GET",
+            credentials: "include",
+            cache: "no-store",
+          }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+          throw new Error(
+            data.message || "Unable to load dashboard statistics."
+          );
+        }
+
+        if (!cancelled) {
+          setStats(data.stats || {});
+        }
+
       } catch (err) {
-        setError(err.message);
+        if (!cancelled) {
+          setError(err.message || "Unable to load Admin Dashboard.");
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     };
 
     loadDashboard();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const cards = [
@@ -76,65 +120,92 @@ export default function AdminDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-white">
-        Loading Admin Dashboard...
+      <div className="min-h-screen flex items-center justify-center bg-[#09090f] text-white">
+        <div className="text-center">
+          <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-purple-500/20 border-t-purple-500" />
+          <p>Verifying admin and loading dashboard...</p>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-4 text-white">
-        <p className="text-red-400">{error}</p>
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-[#09090f] px-5 text-center text-white">
+        <div className="text-5xl">🔒</div>
 
-        <button
-          onClick={() => window.location.reload()}
-          className="px-5 py-2 rounded-lg bg-purple-600"
-        >
-          Try Again
-        </button>
+        <h1 className="text-2xl font-bold">
+          Dashboard Access
+        </h1>
+
+        <p className="max-w-lg text-red-400">
+          {error}
+        </p>
+
+        <div className="flex flex-wrap justify-center gap-3">
+          <button
+            onClick={() => window.location.reload()}
+            className="rounded-lg bg-purple-600 px-5 py-3 font-semibold hover:bg-purple-700"
+          >
+            Try Again
+          </button>
+
+          <button
+            onClick={() => navigate("/login")}
+            className="rounded-lg border border-white/20 px-5 py-3 font-semibold hover:bg-white/10"
+          >
+            Go to Login
+          </button>
+
+          <button
+            onClick={() => navigate("/")}
+            className="rounded-lg border border-white/20 px-5 py-3 font-semibold hover:bg-white/10"
+          >
+            Home
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#09090f] text-white px-4 py-10 md:px-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-[#09090f] px-4 py-10 text-white md:px-8">
+      <div className="mx-auto max-w-7xl">
 
         {/* Dashboard Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-10">
+        <div className="mb-10 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
-            <p className="text-purple-400 text-sm font-semibold">
+            <p className="text-sm font-semibold text-purple-400">
               NGAnimationCR Academy
             </p>
 
-            <h1 className="text-3xl md:text-4xl font-bold mt-2">
+            <h1 className="mt-2 text-3xl font-bold md:text-4xl">
               Admin Dashboard
             </h1>
 
-            <p className="text-gray-400 mt-2">
-              Welcome, {admin?.name}
+            <p className="mt-2 text-gray-400">
+              Welcome, {admin?.name || "Admin"}
             </p>
           </div>
 
           <Link
             to="/courses"
-            className="px-5 py-3 rounded-xl bg-purple-600 hover:bg-purple-700 text-center"
+            className="rounded-xl bg-purple-600 px-5 py-3 text-center transition hover:bg-purple-700"
           >
             View Website →
           </Link>
         </div>
 
         {/* Overview */}
-        <h2 className="text-xl font-semibold mb-5">
+        <h2 className="mb-5 text-xl font-semibold">
           Overview
         </h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {cards.map((card) => (
             <div
               key={card.title}
-              className="bg-[#171722] border border-white/10 rounded-2xl p-6 hover:border-purple-500/50 transition"
+              className="rounded-2xl border border-white/10 bg-[#171722] p-6 transition hover:border-purple-500/50"
             >
               <div className="flex items-center justify-between">
                 <p className="text-gray-400">
@@ -146,7 +217,7 @@ export default function AdminDashboard() {
                 </span>
               </div>
 
-              <h3 className="text-3xl font-bold mt-5">
+              <h3 className="mt-5 text-3xl font-bold">
                 {card.value}
               </h3>
             </div>
@@ -155,80 +226,67 @@ export default function AdminDashboard() {
 
         {/* Management */}
         <div className="mt-12">
-          <h2 className="text-xl font-semibold mb-5">
+          <h2 className="mb-5 text-xl font-semibold">
             Management
           </h2>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
 
-            {/* Courses */}
             <Link
               to="/admin/courses"
-              className="bg-[#171722] border border-white/10 rounded-2xl p-6 hover:border-purple-500 transition"
+              className="rounded-2xl border border-white/10 bg-[#171722] p-6 transition hover:border-purple-500"
             >
               <span className="text-3xl">📚</span>
-
-              <h3 className="text-lg font-semibold mt-3">
-                Courses
-              </h3>
-
-              <p className="text-gray-400 text-sm mt-1">
+              <h3 className="mt-3 text-lg font-semibold">Courses</h3>
+              <p className="mt-1 text-sm text-gray-400">
                 Add, edit and manage courses
               </p>
             </Link>
 
-            {/* Lessons */}
             <Link
               to="/admin/lessons"
-              className="bg-[#171722] border border-white/10 rounded-2xl p-6 hover:border-purple-500 transition"
+              className="rounded-2xl border border-white/10 bg-[#171722] p-6 transition hover:border-purple-500"
             >
               <span className="text-3xl">🎬</span>
-
-              <h3 className="text-lg font-semibold mt-3">
+              <h3 className="mt-3 text-lg font-semibold">
                 Lessons & Videos
               </h3>
-
-              <p className="text-gray-400 text-sm mt-1">
+              <p className="mt-1 text-sm text-gray-400">
                 Add lessons and manage video links
               </p>
             </Link>
 
-            {/* Students */}
             <Link
               to="/admin/students"
-              className="bg-[#171722] border border-white/10 rounded-2xl p-6 hover:border-purple-500 transition"
+              className="rounded-2xl border border-white/10 bg-[#171722] p-6 transition hover:border-purple-500"
             >
               <span className="text-3xl">👨‍🎓</span>
-
-              <h3 className="text-lg font-semibold mt-3">
-                Students
-              </h3>
-
-              <p className="text-gray-400 text-sm mt-1">
+              <h3 className="mt-3 text-lg font-semibold">Students</h3>
+              <p className="mt-1 text-sm text-gray-400">
                 View and manage registered students
               </p>
             </Link>
 
-            {/* Orders */}
             <Link
               to="/admin/orders"
-              className="bg-[#171722] border border-white/10 rounded-2xl p-6 hover:border-purple-500 transition"
+              className="rounded-2xl border border-white/10 bg-[#171722] p-6 transition hover:border-purple-500"
             >
               <span className="text-3xl">💳</span>
-              <h3 className="text-lg font-semibold mt-3">Orders</h3>
-              <p className="text-gray-400 text-sm mt-1">
+              <h3 className="mt-3 text-lg font-semibold">Orders</h3>
+              <p className="mt-1 text-sm text-gray-400">
                 View payment orders and transaction details
               </p>
             </Link>
 
-            {/* Enrollments */}
             <Link
               to="/admin/enrollments"
-              className="bg-[#171722] border border-white/10 rounded-2xl p-6 hover:border-purple-500 transition"
+              className="rounded-2xl border border-white/10 bg-[#171722] p-6 transition hover:border-purple-500"
             >
               <span className="text-3xl">🎓</span>
-              <h3 className="text-lg font-semibold mt-3">Enrollments</h3>
-              <p className="text-gray-400 text-sm mt-1">
+              <h3 className="mt-3 text-lg font-semibold">
+                Enrollments
+              </h3>
+              <p className="mt-1 text-sm text-gray-400">
                 View enrolled students and course details
               </p>
             </Link>

@@ -47,6 +47,10 @@ session_set_cookie_params([
 
 session_start();
 
+error_log("LOGIN DEBUG - HTTPS: " . ($_SERVER["HTTPS"] ?? "NOT SET"));
+error_log("LOGIN DEBUG - SESSION ID: " . session_id());
+error_log("LOGIN DEBUG - COOKIE: " . json_encode($_COOKIE));
+
 require_once __DIR__ . "/../config/database.php";
 
 $data = json_decode(file_get_contents("php://input"), true);
