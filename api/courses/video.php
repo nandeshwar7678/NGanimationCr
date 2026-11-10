@@ -1,9 +1,7 @@
-
 <?php
 
 header("Content-Type: application/json; charset=utf-8");
 
-// CORS Configuration
 $allowedOrigins = [
     "http://localhost:5173",
     "https://aicloudetools.com"
@@ -20,24 +18,24 @@ if (in_array($origin, $allowedOrigins, true)) {
 header("Access-Control-Allow-Methods: GET, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 
-// Handle preflight request
 if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
     http_response_code(204);
     exit;
 }
 
-// Only GET allowed
-if ($_SERVER["REQUEST_METHOD"] !== "GET") {
-    http_response_code(405);
-
-    echo json_encode([
-        "success" => false,
-        "message" => "Method not allowed."
-    ]);
+function sendResponse($status, $data) {
+    http_response_code($status);
+    echo json_encode($data);
     exit;
 }
 
-// Start session
+if ($_SERVER["REQUEST_METHOD"] !== "GET") {
+    sendResponse(405, [
+        "success" => false,
+        "message" => "Method not allowed."
+    ]);
+}
+
 session_set_cookie_params([
     "lifetime" => 0,
     "path" => "/",
@@ -48,20 +46,15 @@ session_set_cookie_params([
 
 session_start();
 
-// Check login
-if (!isset($_SESSION["user_id"])) {
-    http_response_code(401);
-
-    echo json_encode([
+if (empty($_SESSION["user_id"])) {
+    sendResponse(401, [
         "success" => false,
         "message" => "Please login first."
     ]);
-    exit;
 }
 
 $userId = (int) $_SESSION["user_id"];
 
-// Get lesson ID
 $lessonId = filter_input(
     INPUT_GET,
     "lesson_id",
@@ -69,21 +62,16 @@ $lessonId = filter_input(
 );
 
 if (!$lessonId || $lessonId < 1) {
-    http_response_code(400);
-
-    echo json_encode([
+    sendResponse(400, [
         "success" => false,
         "message" => "Valid lesson ID is required."
     ]);
-    exit;
 }
 
-// Database connection
 require_once __DIR__ . "/../config/database.php";
 
 try {
 
-    // Verify lesson, course, enrollment and paid order
     $sql = "
         SELECT
             l.id,
@@ -105,11 +93,18 @@ try {
             AND o.user_id = e.user_id
             AND o.course_id = e.course_id
 
+        INNER JOIN users u
+            ON u.id = e.user_id
+
         WHERE
             l.id = :lesson_id
             AND e.user_id = :user_id
             AND o.status = 'paid'
             AND c.published = 1
+            AND (
+                u.role <> 'student'
+                OR u.account_status = 'active'
+            )
 
         LIMIT 1
     ";
@@ -123,38 +118,28 @@ try {
 
     $lesson = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // Enrollment or payment not found
     if (!$lesson) {
-        http_response_code(403);
-
-        echo json_encode([
+        sendResponse(403, [
             "success" => false,
-            "message" => "You are not enrolled in this course or payment is not verified."
+            "message" => "Course access denied. Check your account status and enrollment."
         ]);
-        exit;
     }
 
-    // Check video availability
     $driveFileId = trim((string) $lesson["drive_file_id"]);
 
     if (
         $driveFileId === "" ||
         strpos($driveFileId, "PENDING_UPLOAD_") === 0
     ) {
-        http_response_code(404);
-
-        echo json_encode([
+        sendResponse(404, [
             "success" => false,
             "message" => "Video is not available yet."
         ]);
-        exit;
     }
 
-    // Authorized response
-    echo json_encode([
+    sendResponse(200, [
         "success" => true,
         "message" => "Video access verified successfully.",
-
         "lesson" => [
             "id" => (int) $lesson["id"],
             "title" => $lesson["title"],
@@ -164,14 +149,11 @@ try {
         ]
     ]);
 
-} catch (PDOException $e) {
+} catch (Throwable $e) {
 
-    // Log actual error privately
     error_log("Video access error: " . $e->getMessage());
 
-    http_response_code(500);
-
-    echo json_encode([
+    sendResponse(500, [
         "success" => false,
         "message" => "Unable to verify video access."
     ]);

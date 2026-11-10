@@ -21,13 +21,18 @@ import Courses from './courses/courses.jsx'
 import CourseDetails from './courses/coursesDetails.jsx'
 import Register from './courses/register.jsx'
 import Login from './courses/login.jsx'
+import ForgotPassword from './courses/forgotPassword.jsx'
 import MyLearning from './courses/myLearning.jsx'
 import LessonPlayer from './courses/lessonPlayer.jsx'
+import Profile from './courses/profile.jsx'
 
 // Admin Pages
 import AdminDashboard from './admin/AdminDashboard.jsx'
 import AdminCourses from './admin/AdminCourses.jsx'
 import AdminLessons from './admin/AdminLessons.jsx'
+import AdminStudents from './admin/AdminStudents.jsx'
+import AdminOrders from './admin/AdminOrders.jsx'
+import AdminEnrollments from './admin/AdminEnrollments.jsx'
 
 export default function App() {
   const location = useLocation()
@@ -61,9 +66,11 @@ export default function App() {
           {/* Authentication */}
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
 
           {/* Student Dashboard */}
           <Route path="/my-learning" element={<MyLearning />} />
+          <Route path="/profile" element={<Profile />} />
 
           {/* Lesson Player */}
           <Route path="/learn/:slug" element={<LessonPlayer />} />
@@ -76,10 +83,16 @@ export default function App() {
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/contact" element={<Contact />} />
 
-          {/* Admin */}
+          {/* Admin Dashboard */}
           <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+
+          {/* Admin Management */}
           <Route path="/admin/courses" element={<AdminCourses />} />
           <Route path="/admin/lessons" element={<AdminLessons />} />
+          <Route path="/admin/students" element={<AdminStudents />} />
+          <Route path="/admin/orders" element={<AdminOrders />} />
+          <Route path="/admin/enrollments" element={<AdminEnrollments />} />
         </Routes>
       </main>
 

@@ -1,4 +1,3 @@
-
 <?php
 
 header("Content-Type: application/json; charset=utf-8");
@@ -13,6 +12,7 @@ $origin = $_SERVER["HTTP_ORIGIN"] ?? "";
 if (in_array($origin, $allowedOrigins, true)) {
     header("Access-Control-Allow-Origin: " . $origin);
     header("Access-Control-Allow-Credentials: true");
+    header("Vary: Origin");
 }
 
 header("Access-Control-Allow-Methods: POST, OPTIONS");
@@ -36,7 +36,6 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     ]);
 }
 
-// Start login session
 session_set_cookie_params([
     "lifetime" => 0,
     "path" => "/",
@@ -47,7 +46,7 @@ session_set_cookie_params([
 
 session_start();
 
-if (!isset($_SESSION["user_id"])) {
+if (empty($_SESSION["user_id"])) {
     sendResponse(401, [
         "success" => false,
         "message" => "Please login first."
@@ -56,8 +55,14 @@ if (!isset($_SESSION["user_id"])) {
 
 $userId = (int) $_SESSION["user_id"];
 
-// Read JSON input
 $input = json_decode(file_get_contents("php://input"), true);
+
+if (!is_array($input)) {
+    sendResponse(400, [
+        "success" => false,
+        "message" => "Invalid request data."
+    ]);
+}
 
 $courseId = filter_var(
     $input["course_id"] ?? null,
@@ -71,7 +76,6 @@ if (!$courseId || $courseId < 1) {
     ]);
 }
 
-// Database and Razorpay credentials
 require_once __DIR__ . "/../config/database.php";
 require_once __DIR__ . "/../config/secrets.php";
 
@@ -89,7 +93,35 @@ if (
 
 try {
 
-    // Get actual course price from database
+    // Check account status before creating a payment order.
+    $userStmt = $pdo->prepare(
+        "SELECT role, account_status
+         FROM users
+         WHERE id = ?
+         LIMIT 1"
+    );
+
+    $userStmt->execute([$userId]);
+    $user = $userStmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$user) {
+        sendResponse(401, [
+            "success" => false,
+            "message" => "User not found."
+        ]);
+    }
+
+    if (
+        $user["role"] === "student" &&
+        $user["account_status"] !== "active"
+    ) {
+        sendResponse(403, [
+            "success" => false,
+            "message" => "Your account is inactive. Payment is not allowed."
+        ]);
+    }
+
+    // Get actual course price from database.
     $stmt = $pdo->prepare(
         "SELECT id, title, price_paise
          FROM courses
@@ -116,9 +148,10 @@ try {
         ]);
     }
 
-    // Check existing enrollment
+    // Check existing enrollment.
     $enrollStmt = $pdo->prepare(
-        "SELECT id FROM enrollments
+        "SELECT id
+         FROM enrollments
          WHERE user_id = ? AND course_id = ?
          LIMIT 1"
     );
@@ -132,8 +165,10 @@ try {
         ]);
     }
 
-    // Create Razorpay order
-    $receipt = "course_" . $courseId . "_user_" . $userId . "_" . bin2hex(random_bytes(6));
+    // Create Razorpay order.
+    $receipt = "course_" . $courseId .
+        "_user_" . $userId . "_" .
+        bin2hex(random_bytes(6));
 
     $payload = [
         "amount" => $amount,
@@ -188,11 +223,10 @@ try {
         ]);
     }
 
-    // Save pending order in database
     $insertStmt = $pdo->prepare(
         "INSERT INTO orders
-        (user_id, course_id, razorpay_order_id, amount_paise, status)
-        VALUES (?, ?, ?, ?, 'pending')"
+         (user_id, course_id, razorpay_order_id, amount_paise, status)
+         VALUES (?, ?, ?, ?, 'pending')"
     );
 
     $insertStmt->execute([
@@ -212,13 +246,12 @@ try {
         "course_title" => $course["title"]
     ]);
 
-} catch (PDOException $e) {
+} catch (Throwable $e) {
 
-    error_log("Create order database error: " . $e->getMessage());
+    error_log("Create order error: " . $e->getMessage());
 
     sendResponse(500, [
         "success" => false,
-        "message" => "Unable to save payment order."
+        "message" => "Unable to create payment order."
     ]);
 }
-[]

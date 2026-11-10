@@ -1,4 +1,3 @@
-
 <?php
 
 header("Content-Type: application/json; charset=utf-8");
@@ -13,6 +12,7 @@ $origin = $_SERVER["HTTP_ORIGIN"] ?? "";
 if (in_array($origin, $allowedOrigins, true)) {
     header("Access-Control-Allow-Origin: " . $origin);
     header("Access-Control-Allow-Credentials: true");
+    header("Vary: Origin");
 }
 
 header("Access-Control-Allow-Methods: POST, OPTIONS");
@@ -57,6 +57,13 @@ $userId = (int) $_SESSION["user_id"];
 
 $input = json_decode(file_get_contents("php://input"), true);
 
+if (!is_array($input)) {
+    sendResponse(400, [
+        "success" => false,
+        "message" => "Invalid request data."
+    ]);
+}
+
 $orderId = trim($input["razorpay_order_id"] ?? "");
 $paymentId = trim($input["razorpay_payment_id"] ?? "");
 $signature = trim($input["razorpay_signature"] ?? "");
@@ -77,7 +84,9 @@ require_once __DIR__ . "/../config/secrets.php";
 
 if (
     !defined("RAZORPAY_KEY_SECRET") ||
-    !RAZORPAY_KEY_SECRET
+    !RAZORPAY_KEY_SECRET ||
+    !defined("RAZORPAY_KEY_ID") ||
+    !RAZORPAY_KEY_ID
 ) {
     sendResponse(500, [
         "success" => false,
@@ -87,7 +96,7 @@ if (
 
 try {
 
-    // Step 1: Verify Razorpay signature
+    // Step 1: Verify Razorpay signature.
     $expectedSignature = hash_hmac(
         "sha256",
         $orderId . "|" . $paymentId,
@@ -101,7 +110,7 @@ try {
         ]);
     }
 
-    // Step 2: Find this user's pending order
+    // Step 2: Find this user's order.
     $stmt = $pdo->prepare(
         "SELECT id, user_id, course_id, razorpay_order_id,
                 amount_paise, status
@@ -112,6 +121,7 @@ try {
     );
 
     $stmt->execute([$orderId, $userId]);
+
     $order = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$order) {
@@ -121,7 +131,7 @@ try {
         ]);
     }
 
-    // Step 3: Fetch payment directly from Razorpay
+    // Step 3: Fetch payment directly from Razorpay.
     $ch = curl_init(
         "https://api.razorpay.com/v1/payments/" .
         rawurlencode($paymentId)
@@ -155,7 +165,7 @@ try {
 
     $payment = json_decode($response, true);
 
-    // Step 4: Match payment with our order
+    // Step 4: Match payment with our order.
     if (
         !is_array($payment) ||
         ($payment["order_id"] ?? "") !== $orderId ||
@@ -168,7 +178,6 @@ try {
         ]);
     }
 
-    // Grant access only after Razorpay confirms capture
     if (($payment["status"] ?? "") !== "captured") {
         sendResponse(409, [
             "success" => false,
@@ -176,7 +185,8 @@ try {
         ]);
     }
 
-    // Step 5: Update order and create enrollment atomically
+    // Step 5: Record captured payment and enrollment atomically.
+    // Do not discard a captured payment just because account status changed.
     $pdo->beginTransaction();
 
     $lockStmt = $pdo->prepare(
@@ -186,7 +196,11 @@ try {
          FOR UPDATE"
     );
 
-    $lockStmt->execute([(int) $order["id"], $userId]);
+    $lockStmt->execute([
+        (int) $order["id"],
+        $userId
+    ]);
+
     $lockedOrder = $lockStmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$lockedOrder) {
@@ -210,11 +224,34 @@ try {
             (int) $order["id"],
             $userId
         ]);
+    } else {
+        // Prevent a different payment ID from being attached to an already-paid order.
+        $existingPaymentStmt = $pdo->prepare(
+            "SELECT razorpay_payment_id
+             FROM orders
+             WHERE id = ? AND user_id = ?
+             LIMIT 1"
+        );
+
+        $existingPaymentStmt->execute([
+            (int) $order["id"],
+            $userId
+        ]);
+
+        $existingPaymentId = $existingPaymentStmt->fetchColumn();
+
+        if (
+            $existingPaymentId &&
+            !hash_equals((string) $existingPaymentId, $paymentId)
+        ) {
+            throw new Exception("A different payment is already recorded for this order.");
+        }
     }
 
-    // Check whether enrollment already exists
+    // Check whether enrollment already exists.
     $checkEnrollment = $pdo->prepare(
-        "SELECT id FROM enrollments
+        "SELECT id
+         FROM enrollments
          WHERE user_id = ? AND course_id = ?
          LIMIT 1"
     );
@@ -242,7 +279,7 @@ try {
 
     sendResponse(200, [
         "success" => true,
-        "message" => "Payment verified and enrollment activated.",
+        "message" => "Payment verified and enrollment recorded. Course access depends on account status.",
         "course_id" => (int) $order["course_id"]
     ]);
 

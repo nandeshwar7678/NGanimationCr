@@ -23,7 +23,6 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     setError("");
 
     if (!form.email.trim() || !form.password) {
@@ -34,20 +33,17 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const response = await fetch(
-        "/api/auth/login.php",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify({
-            email: form.email.trim(),
-            password: form.password,
-          }),
-        }
-      );
+      const response = await fetch("/api/auth/login.php", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          email: form.email.trim(),
+          password: form.password,
+        }),
+      });
 
       const data = await response.json();
 
@@ -57,7 +53,6 @@ export default function Login() {
       }
 
       navigate("/my-learning");
-
     } catch (err) {
       setError("Unable to connect to server. Please try again.");
     } finally {
@@ -68,6 +63,7 @@ export default function Login() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-950 px-5 py-16 text-white">
       <div className="w-full max-w-md rounded-2xl border border-white/10 bg-slate-900 p-8 shadow-2xl">
+
         <div className="mb-8 text-center">
           <p className="text-sm font-semibold uppercase tracking-widest text-purple-400">
             NGAnimationCR Academy
@@ -83,6 +79,7 @@ export default function Login() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
+
           <div>
             <label htmlFor="email" className="mb-2 block text-sm font-medium">
               Email Address
@@ -102,9 +99,18 @@ export default function Login() {
           </div>
 
           <div>
-            <label htmlFor="password" className="mb-2 block text-sm font-medium">
-              Password
-            </label>
+            <div className="mb-2 flex items-center justify-between">
+              <label htmlFor="password" className="text-sm font-medium">
+                Password
+              </label>
+
+              <Link
+                to="/forgot-password"
+                className="text-sm font-semibold text-purple-400 hover:text-purple-300"
+              >
+                Forgot Password?
+              </Link>
+            </div>
 
             <input
               id="password"
@@ -135,6 +141,7 @@ export default function Login() {
           >
             {loading ? "Logging in..." : "Login"}
           </button>
+
         </form>
 
         <p className="mt-6 text-center text-sm text-slate-400">
@@ -152,6 +159,7 @@ export default function Login() {
             ← Browse Courses
           </Link>
         </p>
+
       </div>
     </div>
   );

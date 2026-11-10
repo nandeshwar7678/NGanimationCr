@@ -9,33 +9,56 @@ export default function LessonPlayer() {
 
   const [lessons, setLessons] = useState([]);
   const [selectedLesson, setSelectedLesson] = useState(null);
+  const [completedLessons, setCompletedLessons] = useState([]);
   const [loading, setLoading] = useState(true);
   const [videoLoading, setVideoLoading] = useState(false);
+  const [markingComplete, setMarkingComplete] = useState(false);
   const [error, setError] = useState("");
   const [playbackRate, setPlaybackRate] = useState("1");
 
-  // Load lessons
+  const completedCount = completedLessons.length;
+
+  const progress = lessons.length
+    ? Math.round((completedCount / lessons.length) * 100)
+    : 0;
+
+  // Load lessons and saved progress
   useEffect(() => {
-    const loadLessons = async () => {
+    const loadData = async () => {
       try {
         setLoading(true);
         setError("");
 
-        const response = await fetch(
-          `/api/courses/lessons.php?slug=${encodeURIComponent(slug)}`,
-          {
-            credentials: "include",
-            cache: "no-store"
-          }
-        );
+        const [lessonsResponse, progressResponse] = await Promise.all([
+          fetch(
+            `/api/courses/lessons.php?slug=${encodeURIComponent(slug)}`,
+            { credentials: "include", cache: "no-store" }
+          ),
+          fetch(
+            `/api/courses/progress.php?slug=${encodeURIComponent(slug)}`,
+            { credentials: "include", cache: "no-store" }
+          )
+        ]);
 
-        const data = await response.json();
+        const lessonsData = await lessonsResponse.json();
+        const progressData = await progressResponse.json();
 
-        if (!response.ok || !data.success) {
-          throw new Error(data.message || "Unable to load lessons.");
+        if (!lessonsResponse.ok || !lessonsData.success) {
+          throw new Error(
+            lessonsData.message || "Unable to load lessons."
+          );
         }
 
-        setLessons(data.lessons || []);
+        if (!progressResponse.ok || !progressData.success) {
+          throw new Error(
+            progressData.message || "Unable to load progress."
+          );
+        }
+
+        setLessons(lessonsData.lessons || []);
+        setCompletedLessons(
+          (progressData.completed_lessons || []).map(Number)
+        );
 
       } catch (err) {
         setError(err.message);
@@ -44,7 +67,7 @@ export default function LessonPlayer() {
       }
     };
 
-    loadLessons();
+    loadData();
   }, [slug]);
 
   // Verify lesson access before loading video
@@ -75,6 +98,44 @@ export default function LessonPlayer() {
       setError(err.message);
     } finally {
       setVideoLoading(false);
+    }
+  };
+
+  // Mark lesson complete
+  const markComplete = async () => {
+    if (!selectedLesson || markingComplete) return;
+
+    try {
+      setMarkingComplete(true);
+      setError("");
+
+      const response = await fetch("/api/courses/progress.php", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          lesson_id: selectedLesson.id
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "Unable to save progress.");
+      }
+
+      setCompletedLessons((previous) =>
+        previous.includes(Number(selectedLesson.id))
+          ? previous
+          : [...previous, Number(selectedLesson.id)]
+      );
+
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setMarkingComplete(false);
     }
   };
 
@@ -112,7 +173,6 @@ export default function LessonPlayer() {
 
   return (
     <div className="min-h-screen bg-[#080b14] text-white px-4 py-10">
-
       <div className="max-w-7xl mx-auto">
 
         <button
@@ -126,9 +186,30 @@ export default function LessonPlayer() {
           Course Lessons
         </h1>
 
-        <p className="text-gray-400 mb-8">
+        <p className="text-gray-400 mb-6">
           Select a lesson and start learning.
         </p>
+
+        {/* Course Progress */}
+        <div className="bg-[#111827] border border-white/10 rounded-2xl p-5 mb-6">
+          <div className="flex justify-between items-center mb-3 gap-3">
+            <h2 className="font-semibold">Your Learning Progress</h2>
+            <span className="text-purple-400 font-bold">
+              {progress}%
+            </span>
+          </div>
+
+          <div className="w-full h-3 bg-white/10 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-purple-500 rounded-full transition-all duration-500"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+
+          <p className="text-gray-400 text-sm mt-3">
+            {completedCount} of {lessons.length} lessons completed
+          </p>
+        </div>
 
         {error && (
           <div className="bg-red-500/10 border border-red-500/30 text-red-300 p-4 rounded-xl mb-6">
@@ -140,59 +221,58 @@ export default function LessonPlayer() {
 
           {/* Lessons Sidebar */}
           <div className="bg-[#111827] border border-white/10 rounded-2xl p-5">
-
             <h2 className="text-xl font-semibold mb-5">
               Course Content ({lessons.length})
             </h2>
 
             <div className="space-y-3">
+              {lessons.map((lesson, index) => {
+                const isCompleted = completedLessons.includes(
+                  Number(lesson.id)
+                );
 
-              {lessons.map((lesson, index) => (
+                return (
+                  <button
+                    key={lesson.id}
+                    onClick={() => openLesson(lesson)}
+                    disabled={videoLoading}
+                    className={`w-full text-left p-4 rounded-xl border transition ${
+                      selectedLesson?.id === lesson.id
+                        ? "bg-purple-600/20 border-purple-500"
+                        : "bg-white/5 border-white/10 hover:border-purple-500/50"
+                    } disabled:opacity-50`}
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <span className="text-purple-400 font-bold">
+                          {index + 1}.
+                        </span>
+                        <span className="text-sm font-medium">
+                          {lesson.title}
+                        </span>
+                      </div>
 
-                <button
-                  key={lesson.id}
-                  onClick={() => openLesson(lesson)}
-                  disabled={videoLoading}
-                  className={`w-full text-left p-4 rounded-xl border transition ${
-                    selectedLesson?.id === lesson.id
-                      ? "bg-purple-600/20 border-purple-500"
-                      : "bg-white/5 border-white/10 hover:border-purple-500/50"
-                  } disabled:opacity-50`}
-                >
-
-                  <div className="flex items-center gap-3">
-
-                    <span className="text-purple-400 font-bold">
-                      {index + 1}.
-                    </span>
-
-                    <span className="text-sm font-medium">
-                      {lesson.title}
-                    </span>
-
-                  </div>
-
-                </button>
-
-              ))}
-
+                      {isCompleted && (
+                        <span className="text-green-400 text-xs shrink-0">
+                          ✓ Done
+                        </span>
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
             </div>
-
           </div>
 
-          {/* Video Player Area */}
+          {/* Video Player */}
           <div className="lg:col-span-2 bg-[#111827] border border-white/10 rounded-2xl p-5 sm:p-6">
 
             {videoLoading ? (
-
               <div className="py-24 text-center text-gray-400">
                 Verifying lesson access...
               </div>
-
             ) : selectedLesson ? (
-
               <>
-
                 <h2 className="text-2xl font-bold mb-3">
                   {selectedLesson.title}
                 </h2>
@@ -201,9 +281,7 @@ export default function LessonPlayer() {
                   {selectedLesson.description}
                 </p>
 
-                {/* Actual Video */}
                 <div className="bg-black rounded-xl overflow-hidden border border-white/10">
-
                   <video
                     key={selectedLesson.id}
                     ref={videoRef}
@@ -221,14 +299,10 @@ export default function LessonPlayer() {
                   >
                     Your browser does not support HTML5 video.
                   </video>
-
                 </div>
 
-                {/* Player Controls */}
                 <div className="flex flex-wrap items-center justify-between gap-4 mt-5">
-
                   <div className="flex items-center gap-3">
-
                     <label
                       htmlFor="playback-speed"
                       className="text-gray-400 text-sm"
@@ -250,7 +324,6 @@ export default function LessonPlayer() {
                       <option value="1.75">1.75x</option>
                       <option value="2">2x</option>
                     </select>
-
                   </div>
 
                   <button
@@ -259,22 +332,34 @@ export default function LessonPlayer() {
                   >
                     Fullscreen
                   </button>
+                </div>
 
+                {/* Completion Button */}
+                <div className="mt-6 border-t border-white/10 pt-5">
+                  {completedLessons.includes(Number(selectedLesson.id)) ? (
+                    <div className="text-green-400 font-semibold">
+                      ✓ Lesson Completed
+                    </div>
+                  ) : (
+                    <button
+                      onClick={markComplete}
+                      disabled={markingComplete}
+                      className="bg-green-600 hover:bg-green-700 disabled:opacity-50 px-5 py-3 rounded-xl font-semibold"
+                    >
+                      {markingComplete
+                        ? "Saving..."
+                        : "✓ Mark as Complete"}
+                    </button>
+                  )}
                 </div>
 
                 <p className="text-gray-500 text-xs mt-5">
                   Your course access is verified. Enjoy learning!
                 </p>
-
               </>
-
             ) : (
-
               <div className="py-24 text-center">
-
-                <div className="text-5xl mb-4">
-                  🎬
-                </div>
+                <div className="text-5xl mb-4">🎬</div>
 
                 <h2 className="text-xl font-semibold mb-2">
                   Select a Lesson
@@ -283,17 +368,12 @@ export default function LessonPlayer() {
                 <p className="text-gray-400">
                   Choose a lesson from the left side to start watching.
                 </p>
-
               </div>
-
             )}
 
           </div>
-
         </div>
-
       </div>
-
     </div>
   );
 }
